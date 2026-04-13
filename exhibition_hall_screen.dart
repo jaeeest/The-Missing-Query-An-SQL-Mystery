@@ -1108,12 +1108,12 @@ class _GlowingClueState extends State<GlowingClue>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1400),
+      duration: const Duration(milliseconds: 1100),
     )..repeat(reverse: true);
 
     _glow = Tween<double>(
-      begin: 0.25,
-      end: 0.85,
+      begin: 0.45,
+      end: 1.0,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
@@ -1130,17 +1130,22 @@ class _GlowingClueState extends State<GlowingClue>
       builder: (context, child) {
         return Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
+            shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: const Color.fromARGB(255, 254, 255, 213).withOpacity(_glow.value * 0.40),
-                blurRadius: 13 + (_glow.value * 5),
-                spreadRadius: 1 + (_glow.value * 2),
+                color: const Color(0xFFFFFFCC).withOpacity(_glow.value),
+                blurRadius: 20 + (_glow.value * 10),
+                spreadRadius: 3 + (_glow.value * 4),
               ),
               BoxShadow(
-                color: const Color(0xFF6A008A).withOpacity(_glow.value * 0.15),
-                blurRadius: 24 + (_glow.value * 10),
-                spreadRadius: _glow.value,
+                color: const Color(0xFFFFD54F).withOpacity(_glow.value * 0.85),
+                blurRadius: 30 + (_glow.value * 50),
+                spreadRadius: 2 + (_glow.value * 3),
+              ),
+              BoxShadow(
+                color: const Color(0xFF6A008A).withOpacity(_glow.value * 0.35),
+                blurRadius: 42 + (_glow.value * 10),
+                spreadRadius: 1 + (_glow.value * 2),
               ),
             ],
           ),
