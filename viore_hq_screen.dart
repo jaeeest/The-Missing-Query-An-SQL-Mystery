@@ -19,6 +19,18 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
 
   String? activeInvestigationText;
 
+  String _normalizeAnswer(String value) {
+    return value.trim().toUpperCase().replaceAll(RegExp(r'\s+'), ' ');
+  }
+
+  bool _isVioreCorrectAnswer(String input) {
+    final normalized = _normalizeAnswer(input);
+
+    const acceptedAnswers = {'VIORE CORP', 'VIORE'};
+
+    return acceptedAnswers.contains(normalized);
+  }
+
   final TextEditingController _sqlController = TextEditingController();
   final TextEditingController _answerController = TextEditingController();
   final ScrollController _sqlScrollController = ScrollController();
@@ -616,8 +628,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
                 child: Center(
                   child: InkWell(
                     onTap: () {
-                      if (_answerController.text.trim().toUpperCase() ==
-                          "VIORE CORP") {
+                      if (_isVioreCorrectAnswer(_answerController.text)) {
                         setState(() {
                           isQuestionVisible = false;
                           isCorrectVisible = true;
