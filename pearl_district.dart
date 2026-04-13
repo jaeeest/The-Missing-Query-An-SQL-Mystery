@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 class PearlDistrictScreen extends StatefulWidget {
@@ -13,6 +14,8 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen> {
   bool isQuestionVisible = false;
   bool isCorrectVisible = false;
   bool isWrongVisible = false;
+
+  String? activeInvestigationText;
 
   final TextEditingController _sqlController = TextEditingController();
   final TextEditingController _answerController = TextEditingController();
@@ -545,8 +548,25 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen> {
               Positioned(
                 top: constraints.maxHeight * 0.45,
                 left: constraints.maxWidth * 0.580,
-                child: _buildOverlayIcon('assets/investigate.png', 40),
+                child: _buildOverlayIcon(
+                  'assets/investigate.png',
+                  40,
+                  "A folder containing several financial documents. ",
+                ),
               ),
+
+              if (activeInvestigationText != null)
+                Center(
+                  child: SizedBox(
+                    width: constraints.maxWidth * 0.6,
+                    child: InvestigationTypewriter(
+                      key: ValueKey(activeInvestigationText),
+                      text: activeInvestigationText!,
+                      onFinished: () =>
+                          setState(() => activeInvestigationText = null),
+                    ),
+                  ),
+                ),
 
               if (isQueryVisible)
                 AnimatedPopup(child: _buildPopUpContainer(constraints)),
@@ -609,7 +629,7 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen> {
                 left: constraints.maxWidth * 0.15,
                 right: constraints.maxWidth * 0.10,
                 child: Opacity(
-                  opacity: 0.50,
+                  opacity: 0.02,
                   child: TextField(
                     controller: _answerController,
                     autofocus: true,
@@ -1027,11 +1047,15 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen> {
     return TextSpan(children: spans);
   }
 
-  Widget _buildOverlayIcon(String asset, double width) {
+  Widget _buildOverlayIcon(String asset, double width, String description) {
     return GlowingClue(
       child: FloatingBubble(
         child: GestureDetector(
-          onTap: () => debugPrint("Tapped $asset"),
+          onTap: () {
+            setState(() {
+              activeInvestigationText = description;
+            });
+          },
           child: Image.asset(asset, width: width, fit: BoxFit.contain),
         ),
       ),
@@ -1044,6 +1068,78 @@ class _QueryResult {
   final List<String> columns;
 
   _QueryResult({required this.rows, required this.columns});
+}
+
+class InvestigationTypewriter extends StatefulWidget {
+  final String text;
+  final VoidCallback onFinished;
+
+  const InvestigationTypewriter({
+    super.key,
+    required this.text,
+    required this.onFinished,
+  });
+
+  @override
+  State<InvestigationTypewriter> createState() =>
+      _InvestigationTypewriterState();
+}
+
+class _InvestigationTypewriterState extends State<InvestigationTypewriter> {
+  String _displayedText = "";
+  int _charIndex = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTyping();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startTyping() {
+    _timer = Timer.periodic(const Duration(milliseconds: 40), (timer) {
+      if (_charIndex < widget.text.length) {
+        if (mounted) {
+          setState(() {
+            _displayedText += widget.text[_charIndex];
+            _charIndex++;
+          });
+        }
+      } else {
+        _timer?.cancel();
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) widget.onFinished();
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.85),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blueAccent, width: 2),
+      ),
+      child: Text(
+        _displayedText,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontFamily: 'Consolas',
+        ),
+      ),
+    );
+  }
 }
 
 class FloatingBubble extends StatefulWidget {
