@@ -850,7 +850,7 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen> {
           ),
         ),
         Positioned(
-          top: constraints.maxHeight * 0.10,
+          top: constraints.maxHeight * 0.15,
           left: constraints.maxWidth * 0.05,
           right: constraints.maxWidth * 0.08,
           bottom: constraints.maxHeight * 0.18,
