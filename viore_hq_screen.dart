@@ -1,4 +1,6 @@
-import 'dart:async'; // REQUIRED FOR TIMER
+// ignore_for_file: deprecated_member_use
+
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 class VioreHqScreen extends StatefulWidget {
@@ -14,10 +16,20 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
   bool isQuestionVisible = false;
   bool isCorrectVisible = false;
   bool isWrongVisible = false;
-  String? activeInvestigationText; // NEW STATE FOR TYPEWRITER
+
+  String? activeInvestigationText;
 
   final TextEditingController _sqlController = TextEditingController();
   final TextEditingController _answerController = TextEditingController();
+  final ScrollController _sqlScrollController = ScrollController();
+
+  final List<String> _headers = const [
+    'company_name',
+    'public_ip_range',
+    'unique_software',
+    'license_status',
+    'asset_value',
+  ];
 
   final List<List<String>> _intelligenceData = [
     ['Viore Corp', '172.16.10.0/24', 'NullByte-v7', 'ACTIVE', '1,500,000'],
@@ -54,45 +66,370 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
     ['Tech_Savvy_Repair', '10.0.9.9', 'FixIt_Toolkit', 'ACTIVE', '7,500'],
   ];
 
-  late List<List<String>> _filteredLogs;
+  late List<Map<String, String>> _allCompanyMaps;
+  late List<Map<String, String>> _filteredCompanyMaps;
+  late List<String> _visibleHeaders;
 
   @override
   void initState() {
     super.initState();
-    _filteredLogs = List.from(_intelligenceData);
-  }
 
-  void _runSqlQuery() {
-    String query = _sqlController.text.toUpperCase().trim();
-    setState(() {
-      if (query.isEmpty || !query.contains("SELECT")) {
-        _filteredLogs = List.from(_intelligenceData);
-      } else {
-        _filteredLogs = _intelligenceData.where((row) {
-          bool matches = true;
-          if (query.contains("EXPIRED") && row[3] != "EXPIRED") matches = false;
-          if (query.contains("ACTIVE") && row[3] != "ACTIVE") matches = false;
-          if (query.contains("TRIAL") && row[3] != "TRIAL") matches = false;
-          if (query.contains("NULLBYTE-V7") &&
-              !row[2].toUpperCase().contains("NULLBYTE-V7"))
-            matches = false;
-          if (query.contains("VIORE CORP") &&
-              !row[0].toUpperCase().contains("VIORE CORP"))
-            matches = false;
-          return matches;
-        }).toList();
-      }
-      isTableVisible = true;
+    _allCompanyMaps = _intelligenceData.map((row) {
+      return {
+        'company_name': row[0],
+        'public_ip_range': row[1],
+        'unique_software': row[2],
+        'license_status': row[3],
+        'asset_value': row[4],
+      };
+    }).toList();
+
+    _filteredCompanyMaps = List.from(_allCompanyMaps);
+    _visibleHeaders = List.from(_headers);
+
+    _sqlController.addListener(() {
+      if (mounted) setState(() {});
+    });
+
+    _answerController.addListener(() {
+      if (mounted) setState(() {});
     });
   }
 
-  final Map<int, TableColumnWidth> _columnWidths = const {
-    0: FlexColumnWidth(4),
-    1: FlexColumnWidth(4),
-    2: FlexColumnWidth(4),
-    3: FlexColumnWidth(4),
-    4: FlexColumnWidth(3),
-  };
+  @override
+  void dispose() {
+    _sqlController.dispose();
+    _answerController.dispose();
+    _sqlScrollController.dispose();
+    super.dispose();
+  }
+
+  void _runSqlQuery() {
+    final rawQuery = _sqlController.text.trim();
+
+    if (rawQuery.isEmpty) {
+      setState(() {
+        _filteredCompanyMaps = List.from(_allCompanyMaps);
+        _visibleHeaders = List.from(_headers);
+        isTableVisible = true;
+      });
+      return;
+    }
+
+    try {
+      final result = _executeSimpleSql(rawQuery);
+
+      setState(() {
+        _filteredCompanyMaps = result.rows;
+        _visibleHeaders = result.columns;
+        isTableVisible = true;
+      });
+    } catch (_) {
+      setState(() {
+        _filteredCompanyMaps = [];
+        _visibleHeaders = List.from(_headers);
+        isTableVisible = true;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid or unsupported query format.')),
+      );
+    }
+  }
+
+  _QueryResult _executeSimpleSql(String rawQuery) {
+    final query = rawQuery.trim();
+    final upper = query.toUpperCase();
+
+    if (!upper.startsWith('SELECT ')) {
+      throw Exception('Only SELECT queries are supported.');
+    }
+
+    final fromMatch = RegExp(
+      r'\bFROM\b',
+      caseSensitive: false,
+    ).firstMatch(query);
+    if (fromMatch == null) {
+      throw Exception('Missing FROM clause.');
+    }
+
+    final selectPart = query.substring(6, fromMatch.start).trim();
+    final afterFrom = query.substring(fromMatch.end).trim();
+
+    final whereMatch = RegExp(
+      r'\bWHERE\b',
+      caseSensitive: false,
+    ).firstMatch(afterFrom);
+    final orderByMatch = RegExp(
+      r'\bORDER\s+BY\b',
+      caseSensitive: false,
+    ).firstMatch(afterFrom);
+    final limitMatch = RegExp(
+      r'\bLIMIT\b',
+      caseSensitive: false,
+    ).firstMatch(afterFrom);
+
+    int cutIndex = afterFrom.length;
+    for (final match in [whereMatch, orderByMatch, limitMatch]) {
+      if (match != null && match.start < cutIndex) {
+        cutIndex = match.start;
+      }
+    }
+
+    final tableName = afterFrom.substring(0, cutIndex).trim().toLowerCase();
+    if (tableName != 'intelligence_data') {
+      throw Exception('Unknown table.');
+    }
+
+    List<String> selectedColumns;
+    if (selectPart == '*') {
+      selectedColumns = List.from(_headers);
+    } else {
+      selectedColumns = selectPart
+          .split(',')
+          .map((e) => e.trim().toLowerCase())
+          .where((e) => e.isNotEmpty)
+          .toList();
+
+      for (final col in selectedColumns) {
+        if (!_headers.contains(col)) {
+          throw Exception('Unknown column: $col');
+        }
+      }
+    }
+
+    String? whereClause;
+    String? orderByColumn;
+    bool orderDescending = false;
+    int? limit;
+
+    if (whereMatch != null) {
+      final start = whereMatch.end;
+      int end = afterFrom.length;
+      if (orderByMatch != null && orderByMatch.start > whereMatch.start) {
+        end = orderByMatch.start;
+      } else if (limitMatch != null && limitMatch.start > whereMatch.start) {
+        end = limitMatch.start;
+      }
+      whereClause = afterFrom.substring(start, end).trim();
+    }
+
+    if (orderByMatch != null) {
+      final start = orderByMatch.end;
+      int end = afterFrom.length;
+      if (limitMatch != null && limitMatch.start > orderByMatch.start) {
+        end = limitMatch.start;
+      }
+      final orderClause = afterFrom.substring(start, end).trim();
+      final parts = orderClause.split(RegExp(r'\s+'));
+      if (parts.isNotEmpty) {
+        orderByColumn = parts.first.toLowerCase();
+        if (!_headers.contains(orderByColumn)) {
+          throw Exception('Unknown ORDER BY column.');
+        }
+        if (parts.length > 1) {
+          orderDescending = parts[1].toUpperCase() == 'DESC';
+        }
+      }
+    }
+
+    if (limitMatch != null) {
+      final limitText = afterFrom.substring(limitMatch.end).trim();
+      limit = int.tryParse(limitText.split(RegExp(r'\s+')).first);
+    }
+
+    List<Map<String, String>> rows = List.from(_allCompanyMaps);
+
+    if (whereClause != null && whereClause.isNotEmpty) {
+      rows = rows
+          .where((row) => _evaluateWhereClause(row, whereClause!))
+          .toList();
+    }
+
+    if (orderByColumn != null) {
+      rows.sort((a, b) {
+        final av = (a[orderByColumn] ?? '').toUpperCase();
+        final bv = (b[orderByColumn] ?? '').toUpperCase();
+        return orderDescending ? bv.compareTo(av) : av.compareTo(bv);
+      });
+    }
+
+    if (limit != null && limit >= 0 && limit < rows.length) {
+      rows = rows.take(limit).toList();
+    }
+
+    return _QueryResult(rows: rows, columns: selectedColumns);
+  }
+
+  bool _evaluateWhereClause(Map<String, String> row, String clause) {
+    final orParts = clause.split(RegExp(r'\s+OR\s+', caseSensitive: false));
+
+    for (final orPart in orParts) {
+      final andParts = orPart.split(RegExp(r'\s+AND\s+', caseSensitive: false));
+      bool andResult = true;
+
+      for (final condition in andParts) {
+        if (!_evaluateCondition(row, condition.trim())) {
+          andResult = false;
+          break;
+        }
+      }
+
+      if (andResult) return true;
+    }
+
+    return false;
+  }
+
+  bool _evaluateCondition(Map<String, String> row, String condition) {
+    final likeMatch = RegExp(
+      r"^(\w+)\s+LIKE\s+'([^']*)'$",
+      caseSensitive: false,
+    ).firstMatch(condition);
+
+    if (likeMatch != null) {
+      final column = likeMatch.group(1)!.toLowerCase();
+      final pattern = likeMatch.group(2)!;
+      final value = row[column] ?? '';
+      if (!_headers.contains(column)) return false;
+
+      final regexPattern = '^${RegExp.escape(pattern).replaceAll('%', '.*')}\$';
+      return RegExp(regexPattern, caseSensitive: false).hasMatch(value);
+    }
+
+    final eqMatch = RegExp(
+      r"^(\w+)\s*(=|!=|<>)\s*'([^']*)'$",
+      caseSensitive: false,
+    ).firstMatch(condition);
+
+    if (eqMatch != null) {
+      final column = eqMatch.group(1)!.toLowerCase();
+      final op = eqMatch.group(2)!;
+      final expected = eqMatch.group(3)!;
+      final actual = row[column] ?? '';
+      if (!_headers.contains(column)) return false;
+
+      switch (op) {
+        case '=':
+          return actual.toUpperCase() == expected.toUpperCase();
+        case '!=':
+        case '<>':
+          return actual.toUpperCase() != expected.toUpperCase();
+      }
+    }
+
+    return false;
+  }
+
+  Widget _buildAsteriskIcon(double width) {
+    return GlowingClue(
+      child: FloatingBubble(
+        child: GestureDetector(
+          onTap: () {
+            setState(() {
+              isQuestionVisible = true;
+              isQueryVisible = false;
+              isTableVisible = false;
+            });
+          },
+          child: Image.asset(
+            'assets/asterisk.png',
+            width: width,
+            fit: BoxFit.contain,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnswerKeyboardPreview() {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
+    if (!isQuestionVisible || keyboardHeight == 0) {
+      return const SizedBox.shrink();
+    }
+
+    return Positioned(
+      left: 20,
+      right: 20,
+      bottom: keyboardHeight + 10,
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.90),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFF7A4B28), width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.18),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Text(
+            _answerController.text.isEmpty
+                ? 'TYPE ANSWER...'
+                : _answerController.text,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: _answerController.text.isEmpty
+                  ? Colors.grey
+                  : Colors.blueGrey,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Luckiest Guy',
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSqlKeyboardPreview() {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
+    if (!isQueryVisible || keyboardHeight == 0 || isTableVisible) {
+      return const SizedBox.shrink();
+    }
+
+    return Positioned(
+      left: 20,
+      right: 20,
+      bottom: keyboardHeight + 10,
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          constraints: const BoxConstraints(maxHeight: 140),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.97),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFF7A4B28), width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.18),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: SingleChildScrollView(
+            child: RichText(
+              text: _buildSqlHighlightedText(
+                _sqlController.text.isEmpty
+                    ? "ENTER SQL QUERY..."
+                    : _sqlController.text,
+                isHint: _sqlController.text.isEmpty,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +491,6 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
                 ),
               ),
 
-              // Icons
               Positioned(
                 top: constraints.maxHeight * 0.53,
                 left: constraints.maxWidth * 0.48,
@@ -179,12 +515,11 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
                 ),
               ),
 
-              // Typewriter Overlay
               if (activeInvestigationText != null)
                 Center(
                   child: SizedBox(
                     width: constraints.maxWidth * 0.6,
-                    child: TypewriterText(
+                    child: InvestigationTypewriter(
                       key: ValueKey(activeInvestigationText),
                       text: activeInvestigationText!,
                       onFinished: () =>
@@ -193,10 +528,17 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
                   ),
                 ),
 
-              if (isQueryVisible) _buildPopUpContainer(constraints),
-              if (isQuestionVisible) _buildQuestionPopUp(constraints),
-              if (isCorrectVisible) _buildCorrectPopUp(constraints),
-              if (isWrongVisible) _buildWrongPopUp(constraints),
+              if (isQueryVisible)
+                AnimatedPopup(child: _buildPopUpContainer(constraints)),
+              if (isQuestionVisible)
+                AnimatedPopup(child: _buildQuestionPopUp(constraints)),
+              if (isCorrectVisible)
+                AnimatedPopup(child: _buildCorrectPopUp(constraints)),
+              if (isWrongVisible)
+                AnimatedPopup(child: _buildWrongPopUp(constraints)),
+
+              _buildSqlKeyboardPreview(),
+              _buildAnswerKeyboardPreview(),
             ],
           );
         },
@@ -204,75 +546,53 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
     );
   }
 
-  Widget _buildAsteriskIcon(double width) {
-    return FloatingBubble(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            isQuestionVisible = true;
-            isQueryVisible = false;
-            isTableVisible = false;
-          });
-        },
-        child: Image.asset(
-          'assets/asterisk.png',
-          width: width,
-          fit: BoxFit.contain,
-        ),
-      ),
-    );
-  }
-
   Widget _buildQuestionPopUp(BoxConstraints constraints) {
-    final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final double popupHeight = constraints.maxHeight * 0.65;
-    final double popupWidth = constraints.maxWidth * 0.68;
-
     return Container(
       color: Colors.black.withOpacity(0.5),
       child: Center(
-        child: Padding(
-          padding: EdgeInsets.only(bottom: keyboardHeight),
-          child: SizedBox(
-            width: popupWidth,
-            height: popupHeight,
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: Image.asset(
-                    'assets/viore_question.png',
-                    fit: BoxFit.fill,
+        child: SizedBox(
+          width: constraints.maxWidth * 0.68,
+          height: constraints.maxHeight * 0.65,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/viore_question.png',
+                  fit: BoxFit.fill,
+                ),
+              ),
+              Positioned(
+                top: 15,
+                right: 15,
+                child: InkWell(
+                  onTap: () => setState(() => isQuestionVisible = false),
+                  child: Image.asset('assets/close_button.png', height: 25),
+                ),
+              ),
+              Positioned(
+                top: constraints.maxHeight * 0.25,
+                left: constraints.maxWidth * 0.08,
+                right: constraints.maxWidth * 0.08,
+                child: const Text(
+                  "Who is the owner of the NullByte-v7 software?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Consolas',
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueGrey,
                   ),
                 ),
-                Positioned(
-                  top: 15,
-                  right: 15,
-                  child: InkWell(
-                    onTap: () => setState(() => isQuestionVisible = false),
-                    child: Image.asset('assets/close_button.png', height: 25),
-                  ),
-                ),
-                Positioned(
-                  top: popupHeight * 0.40,
-                  left: popupWidth * 0.15,
-                  right: popupWidth * 0.08,
-                  child: const Text(
-                    "Who is the owner of the NullByte-v7 software?",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Consolas',
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueGrey,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: popupHeight * 0.68,
-                  left: popupWidth * 0.23,
-                  right: popupWidth * 0.15,
+              ),
+              Positioned(
+                top: constraints.maxHeight * 0.44,
+                left: constraints.maxWidth * 0.15,
+                right: constraints.maxWidth * 0.10,
+                child: Opacity(
+                  opacity: 0.50,
                   child: TextField(
                     controller: _answerController,
+                    autofocus: true,
                     textAlign: TextAlign.center,
                     textCapitalization: TextCapitalization.characters,
                     style: const TextStyle(
@@ -288,37 +608,34 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
                     ),
                   ),
                 ),
-                Positioned(
-                  bottom: popupHeight * 0.0,
-                  left: 35,
-                  right: 0,
-                  child: Center(
-                    child: InkWell(
-                      onTap: () {
-                        if (_answerController.text.trim().toUpperCase() ==
-                            "VIORE CORP") {
-                          setState(() {
-                            isQuestionVisible = false;
-                            isCorrectVisible = true;
-                            isWrongVisible = false;
-                          });
-                        } else {
-                          setState(() {
-                            isQuestionVisible = false;
-                            isWrongVisible = true;
-                            isCorrectVisible = false;
-                          });
-                        }
-                      },
-                      child: Image.asset(
-                        'assets/submit_button.png',
-                        height: 35,
-                      ),
-                    ),
+              ),
+              Positioned(
+                bottom: constraints.maxHeight * 0.005,
+                left: 35,
+                right: 0,
+                child: Center(
+                  child: InkWell(
+                    onTap: () {
+                      if (_answerController.text.trim().toUpperCase() ==
+                          "VIORE CORP") {
+                        setState(() {
+                          isQuestionVisible = false;
+                          isCorrectVisible = true;
+                          isWrongVisible = false;
+                        });
+                      } else {
+                        setState(() {
+                          isQuestionVisible = false;
+                          isWrongVisible = true;
+                          isCorrectVisible = false;
+                        });
+                      }
+                    },
+                    child: Image.asset('assets/submit_button.png', height: 35),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -380,19 +697,15 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
   }
 
   Widget _buildPopUpContainer(BoxConstraints constraints) {
-    final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return Container(
       color: Colors.black.withOpacity(0.5),
       child: Center(
-        child: Padding(
-          padding: EdgeInsets.only(bottom: keyboardHeight),
-          child: SizedBox(
-            width: constraints.maxWidth * 0.68,
-            height: constraints.maxHeight * 0.75,
-            child: isTableVisible
-                ? _buildTableView(constraints)
-                : _buildQueryView(constraints),
-          ),
+        child: SizedBox(
+          width: constraints.maxWidth * 0.68,
+          height: constraints.maxHeight * 0.75,
+          child: isTableVisible
+              ? _buildTableView(constraints)
+              : _buildQueryView(constraints),
         ),
       ),
     );
@@ -405,6 +718,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
       fontWeight: FontWeight.bold,
       fontSize: 12,
     );
+
     return Stack(
       children: [
         Positioned.fill(
@@ -423,28 +737,12 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
           left: constraints.maxWidth * 0.03,
           right: constraints.maxWidth * 0.01,
           child: Row(
-            children: [
-              Expanded(
-                flex: 4,
-                child: const Text('company_name', style: headerStyle),
-              ),
-              Expanded(
-                flex: 4,
-                child: const Text('public_ip_range', style: headerStyle),
-              ),
-              Expanded(
-                flex: 4,
-                child: const Text('unique software', style: headerStyle),
-              ),
-              Expanded(
-                flex: 4,
-                child: const Text('license status', style: headerStyle),
-              ),
-              Expanded(
-                flex: 3,
-                child: const Text('asset_value', style: headerStyle),
-              ),
-            ],
+            children: List.generate(_visibleHeaders.length, (index) {
+              return Expanded(
+                flex: _flexForHeader(_visibleHeaders[index]),
+                child: Text(_visibleHeaders[index], style: headerStyle),
+              );
+            }),
           ),
         ),
         Positioned(
@@ -455,13 +753,35 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Table(
-              columnWidths: _columnWidths,
+              columnWidths: {
+                for (int i = 0; i < _visibleHeaders.length; i++)
+                  i: FlexColumnWidth(
+                    _flexForHeader(_visibleHeaders[i]).toDouble(),
+                  ),
+              },
               children: _buildTableRowsList(),
             ),
           ),
         ),
       ],
     );
+  }
+
+  int _flexForHeader(String header) {
+    switch (header) {
+      case 'company_name':
+        return 4;
+      case 'public_ip_range':
+        return 4;
+      case 'unique_software':
+        return 4;
+      case 'license_status':
+        return 4;
+      case 'asset_value':
+        return 3;
+      default:
+        return 3;
+    }
   }
 
   List<TableRow> _buildTableRowsList() {
@@ -471,24 +791,25 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
       fontSize: 11,
       fontWeight: FontWeight.w500,
     );
-    return List<TableRow>.generate(_filteredLogs.length, (index) {
+
+    return List<TableRow>.generate(_filteredCompanyMaps.length, (index) {
+      final row = _filteredCompanyMaps[index];
+
       return TableRow(
         decoration: BoxDecoration(
           color: index % 2 == 0
               ? const Color(0xFFFFF9C4).withOpacity(0.7)
               : const Color(0xFFF0E68C).withOpacity(0.5),
         ),
-        children: _filteredLogs[index]
-            .map(
-              (cell) => Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 12.0,
-                  horizontal: 6.0,
-                ),
-                child: Text(cell, style: cellStyle),
-              ),
-            )
-            .toList(),
+        children: _visibleHeaders.map((header) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 12.0,
+              horizontal: 6.0,
+            ),
+            child: Text(row[header] ?? '', style: cellStyle),
+          );
+        }).toList(),
       );
     });
   }
@@ -508,39 +829,84 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
           ),
         ),
         Positioned(
-          top: constraints.maxHeight * 0.10,
+          top: constraints.maxHeight * 0.15,
           left: constraints.maxWidth * 0.05,
           right: constraints.maxWidth * 0.08,
-          bottom: constraints.maxHeight * 0.18,
-          child: TextField(
-            controller: _sqlController,
-            maxLines: null,
-            style: const TextStyle(
-              color: Colors.grey,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-            decoration: const InputDecoration(
-              hintText: "ENTER SQL QUERY...",
-              border: InputBorder.none,
+          bottom: constraints.maxHeight * 0.22,
+          child: Container(
+            alignment: Alignment.topLeft,
+            child: Scrollbar(
+              controller: _sqlScrollController,
+              thumbVisibility: true,
+              child: SingleChildScrollView(
+                controller: _sqlScrollController,
+                physics: const BouncingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight * 0.40,
+                  ),
+                  child: Stack(
+                    children: [
+                      RichText(
+                        text: _buildSqlHighlightedText(
+                          _sqlController.text.isEmpty
+                              ? "ENTER SQL QUERY..."
+                              : _sqlController.text,
+                          isHint: _sqlController.text.isEmpty,
+                        ),
+                      ),
+                      TextField(
+                        controller: _sqlController,
+                        autofocus: true,
+                        maxLines: null,
+                        minLines: 12,
+                        scrollController: _sqlScrollController,
+                        cursorColor: Colors.black,
+                        style: const TextStyle(
+                          color: Colors.transparent,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Consolas',
+                          height: 1.5,
+                        ),
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          isCollapsed: true,
+                        ),
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ),
         Positioned(
-          bottom: constraints.maxHeight * 0.03,
+          bottom: constraints.maxHeight * 0.02,
           left: constraints.maxWidth * 0.03,
           right: constraints.maxWidth * 0.03,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               InkWell(
-                onTap: () => setState(() => isTableVisible = true),
+                onTap: () {
+                  setState(() {
+                    _filteredCompanyMaps = List.from(_allCompanyMaps);
+                    _visibleHeaders = List.from(_headers);
+                    isTableVisible = true;
+                  });
+                },
                 child: Image.asset('assets/tables_button.png', height: 35),
               ),
               Row(
                 children: [
                   InkWell(
-                    onTap: () => _sqlController.clear(),
+                    onTap: () {
+                      setState(() {
+                        _sqlController.clear();
+                      });
+                    },
                     child: Image.asset('assets/clear_button.png', height: 35),
                   ),
                   const SizedBox(width: 10),
@@ -557,31 +923,124 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
     );
   }
 
-  // Updated method to trigger typewriter
+  TextSpan _buildSqlHighlightedText(String text, {bool isHint = false}) {
+    if (isHint) {
+      return const TextSpan(
+        text: "ENTER SQL QUERY...",
+        style: TextStyle(
+          color: Colors.grey,
+          fontSize: 14,
+          fontFamily: 'Consolas',
+          fontWeight: FontWeight.bold,
+          height: 1.5,
+        ),
+      );
+    }
+
+    final keywordStyle = const TextStyle(
+      color: Color(0xFF7B1FA2),
+      fontSize: 14,
+      fontFamily: 'Consolas',
+      fontWeight: FontWeight.bold,
+      height: 1.5,
+    );
+
+    final columnStyle = const TextStyle(
+      color: Color(0xFF1565C0),
+      fontSize: 14,
+      fontFamily: 'Consolas',
+      fontWeight: FontWeight.bold,
+      height: 1.5,
+    );
+
+    final stringStyle = const TextStyle(
+      color: Color(0xFF2E7D32),
+      fontSize: 14,
+      fontFamily: 'Consolas',
+      fontWeight: FontWeight.bold,
+      height: 1.5,
+    );
+
+    final normalStyle = const TextStyle(
+      color: Colors.black,
+      fontSize: 14,
+      fontFamily: 'Consolas',
+      fontWeight: FontWeight.bold,
+      height: 1.5,
+    );
+
+    final tokens = RegExp(
+      r"('[^']*'|\w+|[=,*();<>!]+|\s+|.)",
+    ).allMatches(text).map((m) => m.group(0)!).toList();
+
+    const keywords = {
+      'SELECT',
+      'FROM',
+      'WHERE',
+      'AND',
+      'OR',
+      'LIKE',
+      'ORDER',
+      'BY',
+      'ASC',
+      'DESC',
+      'LIMIT',
+    };
+
+    final spans = <TextSpan>[];
+
+    for (final token in tokens) {
+      final upper = token.toUpperCase();
+
+      if (token.startsWith("'") && token.endsWith("'")) {
+        spans.add(TextSpan(text: token, style: stringStyle));
+      } else if (keywords.contains(upper)) {
+        spans.add(TextSpan(text: token, style: keywordStyle));
+      } else if (_headers.contains(token.toLowerCase())) {
+        spans.add(TextSpan(text: token, style: columnStyle));
+      } else {
+        spans.add(TextSpan(text: token, style: normalStyle));
+      }
+    }
+
+    return TextSpan(children: spans);
+  }
+
   Widget _buildOverlayIcon(String asset, double width, String description) {
-    return FloatingBubble(
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            activeInvestigationText = description;
-          });
-        },
-        child: Image.asset(asset, width: width, fit: BoxFit.contain),
+    return GlowingClue(
+      child: FloatingBubble(
+        child: GestureDetector(
+          onTap: () {
+            setState(() {
+              activeInvestigationText = description;
+            });
+          },
+          child: Image.asset(asset, width: width, fit: BoxFit.contain),
+        ),
       ),
     );
   }
+}
+
+class _QueryResult {
+  final List<Map<String, String>> rows;
+  final List<String> columns;
+
+  _QueryResult({required this.rows, required this.columns});
 }
 
 class FloatingBubble extends StatefulWidget {
   final Widget child;
   final Duration duration;
   final double offset;
+
   const FloatingBubble({
     super.key,
     required this.child,
     this.duration = const Duration(seconds: 2),
     this.offset = 8.0,
   });
+
   @override
   State<FloatingBubble> createState() => _FloatingBubbleState();
 }
@@ -589,6 +1048,7 @@ class FloatingBubble extends StatefulWidget {
 class _FloatingBubbleState extends State<FloatingBubble>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+
   @override
   void initState() {
     super.initState();
@@ -615,21 +1075,140 @@ class _FloatingBubbleState extends State<FloatingBubble>
   }
 }
 
-// Typewriter Component from Police Station
-class TypewriterText extends StatefulWidget {
+class GlowingClue extends StatefulWidget {
+  final Widget child;
+
+  const GlowingClue({super.key, required this.child});
+
+  @override
+  State<GlowingClue> createState() => _GlowingClueState();
+}
+
+class _GlowingClueState extends State<GlowingClue>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _glow;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+
+    _glow = Tween<double>(
+      begin: 0.25,
+      end: 0.85,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _glow,
+      builder: (context, child) {
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: const Color.fromARGB(255, 254, 255, 213).withOpacity(_glow.value * 0.40),
+                blurRadius: 13 + (_glow.value * 5),
+                spreadRadius: 1 + (_glow.value * 2),
+              ),
+              BoxShadow(
+                color: const Color(0xFF6A008A).withOpacity(_glow.value * 0.15),
+                blurRadius: 24 + (_glow.value * 10),
+                spreadRadius: _glow.value,
+              ),
+            ],
+          ),
+          child: child,
+        );
+      },
+      child: widget.child,
+    );
+  }
+}
+
+class AnimatedPopup extends StatefulWidget {
+  final Widget child;
+
+  const AnimatedPopup({super.key, required this.child});
+
+  @override
+  State<AnimatedPopup> createState() => _AnimatedPopupState();
+}
+
+class _AnimatedPopupState extends State<AnimatedPopup>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _fade;
+  late final Animation<double> _scale;
+  late final Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 260),
+    )..forward();
+
+    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+
+    _scale = Tween<double>(
+      begin: 0.93,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+
+    _slide = Tween<Offset>(
+      begin: const Offset(0, 0.03),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fade,
+      child: SlideTransition(
+        position: _slide,
+        child: ScaleTransition(scale: _scale, child: widget.child),
+      ),
+    );
+  }
+}
+
+class InvestigationTypewriter extends StatefulWidget {
   final String text;
   final VoidCallback onFinished;
-  const TypewriterText({
+
+  const InvestigationTypewriter({
     super.key,
     required this.text,
     required this.onFinished,
   });
 
   @override
-  State<TypewriterText> createState() => _TypewriterTextState();
+  State<InvestigationTypewriter> createState() =>
+      _InvestigationTypewriterState();
 }
 
-class _TypewriterTextState extends State<TypewriterText> {
+class _InvestigationTypewriterState extends State<InvestigationTypewriter> {
   String _displayedText = "";
   int _charIndex = 0;
   Timer? _timer;
