@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'simple_sql_engine.dart';
 
 class VioreHqScreen extends StatefulWidget {
   const VioreHqScreen({super.key});
@@ -16,18 +17,6 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
   bool isWrongVisible = false;
 
   String? activeInvestigationText;
-
-  String _normalizeAnswer(String value) {
-    return value.trim().toUpperCase().replaceAll(RegExp(r'\s+'), ' ');
-  }
-
-  bool _isVioreCorrectAnswer(String input) {
-    final normalized = _normalizeAnswer(input);
-
-    const acceptedAnswers = {'VIORE CORP', 'VIORE'};
-
-    return acceptedAnswers.contains(normalized);
-  }
 
   final TextEditingController _sqlController = TextEditingController();
   final TextEditingController _answerController = TextEditingController();
@@ -76,6 +65,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
     ['Tech_Savvy_Repair', '10.0.9.9', 'FixIt_Toolkit', 'ACTIVE', '7,500'],
   ];
 
+  late final SimpleSqlEngine _sqlEngine;
   late List<Map<String, String>> _allCompanyMaps;
   late List<Map<String, String>> _filteredCompanyMaps;
   late List<String> _visibleHeaders;
@@ -93,6 +83,13 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
         'asset_value': row[4],
       };
     }).toList();
+
+    _sqlEngine = SimpleSqlEngine(
+      tableName: 'intelligence_data',
+      headers: _headers,
+      rows: _allCompanyMaps,
+      numericColumns: const {'asset_value'},
+    );
 
     _filteredCompanyMaps = List.from(_allCompanyMaps);
     _visibleHeaders = List.from(_headers);
@@ -114,6 +111,16 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
     super.dispose();
   }
 
+  String _normalizeAnswer(String value) {
+    return value.trim().toUpperCase().replaceAll(RegExp(r'\s+'), ' ');
+  }
+
+  bool _isVioreCorrectAnswer(String input) {
+    final normalized = _normalizeAnswer(input);
+    const acceptedAnswers = {'VIORE CORP', 'VIORE'};
+    return acceptedAnswers.contains(normalized);
+  }
+
   void _runSqlQuery() {
     final rawQuery = _sqlController.text.trim();
 
@@ -127,7 +134,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
     }
 
     try {
-      final result = _executeSimpleSql(rawQuery);
+      final result = _sqlEngine.execute(rawQuery);
 
       setState(() {
         _filteredCompanyMaps = result.rows;
@@ -145,190 +152,6 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
         const SnackBar(content: Text('Invalid or unsupported query format.')),
       );
     }
-  }
-
-  _QueryResult _executeSimpleSql(String rawQuery) {
-    final query = rawQuery.trim();
-    final upper = query.toUpperCase();
-
-    if (!upper.startsWith('SELECT ')) {
-      throw Exception('Only SELECT queries are supported.');
-    }
-
-    final fromMatch = RegExp(
-      r'\bFROM\b',
-      caseSensitive: false,
-    ).firstMatch(query);
-    if (fromMatch == null) {
-      throw Exception('Missing FROM clause.');
-    }
-
-    final selectPart = query.substring(6, fromMatch.start).trim();
-    final afterFrom = query.substring(fromMatch.end).trim();
-
-    final whereMatch = RegExp(
-      r'\bWHERE\b',
-      caseSensitive: false,
-    ).firstMatch(afterFrom);
-    final orderByMatch = RegExp(
-      r'\bORDER\s+BY\b',
-      caseSensitive: false,
-    ).firstMatch(afterFrom);
-    final limitMatch = RegExp(
-      r'\bLIMIT\b',
-      caseSensitive: false,
-    ).firstMatch(afterFrom);
-
-    int cutIndex = afterFrom.length;
-    for (final match in [whereMatch, orderByMatch, limitMatch]) {
-      if (match != null && match.start < cutIndex) {
-        cutIndex = match.start;
-      }
-    }
-
-    final tableName = afterFrom.substring(0, cutIndex).trim().toLowerCase();
-    if (tableName != 'intelligence_data') {
-      throw Exception('Unknown table.');
-    }
-
-    List<String> selectedColumns;
-    if (selectPart == '*') {
-      selectedColumns = List.from(_headers);
-    } else {
-      selectedColumns = selectPart
-          .split(',')
-          .map((e) => e.trim().toLowerCase())
-          .where((e) => e.isNotEmpty)
-          .toList();
-
-      for (final col in selectedColumns) {
-        if (!_headers.contains(col)) {
-          throw Exception('Unknown column: $col');
-        }
-      }
-    }
-
-    String? whereClause;
-    String? orderByColumn;
-    bool orderDescending = false;
-    int? limit;
-
-    if (whereMatch != null) {
-      final start = whereMatch.end;
-      int end = afterFrom.length;
-      if (orderByMatch != null && orderByMatch.start > whereMatch.start) {
-        end = orderByMatch.start;
-      } else if (limitMatch != null && limitMatch.start > whereMatch.start) {
-        end = limitMatch.start;
-      }
-      whereClause = afterFrom.substring(start, end).trim();
-    }
-
-    if (orderByMatch != null) {
-      final start = orderByMatch.end;
-      int end = afterFrom.length;
-      if (limitMatch != null && limitMatch.start > orderByMatch.start) {
-        end = limitMatch.start;
-      }
-      final orderClause = afterFrom.substring(start, end).trim();
-      final parts = orderClause.split(RegExp(r'\s+'));
-      if (parts.isNotEmpty) {
-        orderByColumn = parts.first.toLowerCase();
-        if (!_headers.contains(orderByColumn)) {
-          throw Exception('Unknown ORDER BY column.');
-        }
-        if (parts.length > 1) {
-          orderDescending = parts[1].toUpperCase() == 'DESC';
-        }
-      }
-    }
-
-    if (limitMatch != null) {
-      final limitText = afterFrom.substring(limitMatch.end).trim();
-      limit = int.tryParse(limitText.split(RegExp(r'\s+')).first);
-    }
-
-    List<Map<String, String>> rows = List.from(_allCompanyMaps);
-
-    if (whereClause != null && whereClause.isNotEmpty) {
-      rows = rows
-          .where((row) => _evaluateWhereClause(row, whereClause!))
-          .toList();
-    }
-
-    if (orderByColumn != null) {
-      rows.sort((a, b) {
-        final av = (a[orderByColumn] ?? '').toUpperCase();
-        final bv = (b[orderByColumn] ?? '').toUpperCase();
-        return orderDescending ? bv.compareTo(av) : av.compareTo(bv);
-      });
-    }
-
-    if (limit != null && limit >= 0 && limit < rows.length) {
-      rows = rows.take(limit).toList();
-    }
-
-    return _QueryResult(rows: rows, columns: selectedColumns);
-  }
-
-  bool _evaluateWhereClause(Map<String, String> row, String clause) {
-    final orParts = clause.split(RegExp(r'\s+OR\s+', caseSensitive: false));
-
-    for (final orPart in orParts) {
-      final andParts = orPart.split(RegExp(r'\s+AND\s+', caseSensitive: false));
-      bool andResult = true;
-
-      for (final condition in andParts) {
-        if (!_evaluateCondition(row, condition.trim())) {
-          andResult = false;
-          break;
-        }
-      }
-
-      if (andResult) return true;
-    }
-
-    return false;
-  }
-
-  bool _evaluateCondition(Map<String, String> row, String condition) {
-    final likeMatch = RegExp(
-      r"^(\w+)\s+LIKE\s+'([^']*)'$",
-      caseSensitive: false,
-    ).firstMatch(condition);
-
-    if (likeMatch != null) {
-      final column = likeMatch.group(1)!.toLowerCase();
-      final pattern = likeMatch.group(2)!;
-      final value = row[column] ?? '';
-      if (!_headers.contains(column)) return false;
-
-      final regexPattern = '^${RegExp.escape(pattern).replaceAll('%', '.*')}\$';
-      return RegExp(regexPattern, caseSensitive: false).hasMatch(value);
-    }
-
-    final eqMatch = RegExp(
-      r"^(\w+)\s*(=|!=|<>)\s*'([^']*)'$",
-      caseSensitive: false,
-    ).firstMatch(condition);
-
-    if (eqMatch != null) {
-      final column = eqMatch.group(1)!.toLowerCase();
-      final op = eqMatch.group(2)!;
-      final expected = eqMatch.group(3)!;
-      final actual = row[column] ?? '';
-      if (!_headers.contains(column)) return false;
-
-      switch (op) {
-        case '=':
-          return actual.toUpperCase() == expected.toUpperCase();
-        case '!=':
-        case '<>':
-          return actual.toUpperCase() != expected.toUpperCase();
-      }
-    }
-
-    return false;
   }
 
   Widget _buildAsteriskIcon(double width) {
@@ -398,49 +221,6 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
     );
   }
 
-  Widget _buildSqlKeyboardPreview() {
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-
-    if (!isQueryVisible || keyboardHeight == 0 || isTableVisible) {
-      return const SizedBox.shrink();
-    }
-
-    return Positioned(
-      left: 20,
-      right: 20,
-      bottom: keyboardHeight + 10,
-      child: Material(
-        color: Colors.transparent,
-        child: Container(
-          constraints: const BoxConstraints(maxHeight: 140),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.97),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFF7A4B28), width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.18),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: SingleChildScrollView(
-            child: RichText(
-              text: _buildSqlHighlightedText(
-                _sqlController.text.isEmpty
-                    ? "ENTER SQL QUERY..."
-                    : _sqlController.text,
-                isHint: _sqlController.text.isEmpty,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -500,7 +280,6 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
                   ),
                 ),
               ),
-
               Positioned(
                 top: constraints.maxHeight * 0.53,
                 left: constraints.maxWidth * 0.48,
@@ -524,7 +303,6 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
                   "Access credentials found on a discarded badge.",
                 ),
               ),
-
               if (activeInvestigationText != null)
                 Center(
                   child: SizedBox(
@@ -537,7 +315,6 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
                     ),
                   ),
                 ),
-
               if (isQueryVisible)
                 AnimatedPopup(child: _buildPopUpContainer(constraints)),
               if (isQuestionVisible)
@@ -546,8 +323,6 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
                 AnimatedPopup(child: _buildCorrectPopUp(constraints)),
               if (isWrongVisible)
                 AnimatedPopup(child: _buildWrongPopUp(constraints)),
-
-              _buildSqlKeyboardPreview(),
               _buildAnswerKeyboardPreview(),
             ],
           );
@@ -933,86 +708,7 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
   }
 
   TextSpan _buildSqlHighlightedText(String text, {bool isHint = false}) {
-    if (isHint) {
-      return const TextSpan(
-        text: "ENTER SQL QUERY...",
-        style: TextStyle(
-          color: Colors.grey,
-          fontSize: 14,
-          fontFamily: 'Consolas',
-          fontWeight: FontWeight.bold,
-          height: 1.5,
-        ),
-      );
-    }
-
-    final keywordStyle = const TextStyle(
-      color: Color(0xFF7B1FA2),
-      fontSize: 14,
-      fontFamily: 'Consolas',
-      fontWeight: FontWeight.bold,
-      height: 1.5,
-    );
-
-    final columnStyle = const TextStyle(
-      color: Color(0xFF1565C0),
-      fontSize: 14,
-      fontFamily: 'Consolas',
-      fontWeight: FontWeight.bold,
-      height: 1.5,
-    );
-
-    final stringStyle = const TextStyle(
-      color: Color(0xFF2E7D32),
-      fontSize: 14,
-      fontFamily: 'Consolas',
-      fontWeight: FontWeight.bold,
-      height: 1.5,
-    );
-
-    final normalStyle = const TextStyle(
-      color: Colors.black,
-      fontSize: 14,
-      fontFamily: 'Consolas',
-      fontWeight: FontWeight.bold,
-      height: 1.5,
-    );
-
-    final tokens = RegExp(
-      r"('[^']*'|\w+|[=,*();<>!]+|\s+|.)",
-    ).allMatches(text).map((m) => m.group(0)!).toList();
-
-    const keywords = {
-      'SELECT',
-      'FROM',
-      'WHERE',
-      'AND',
-      'OR',
-      'LIKE',
-      'ORDER',
-      'BY',
-      'ASC',
-      'DESC',
-      'LIMIT',
-    };
-
-    final spans = <TextSpan>[];
-
-    for (final token in tokens) {
-      final upper = token.toUpperCase();
-
-      if (token.startsWith("'") && token.endsWith("'")) {
-        spans.add(TextSpan(text: token, style: stringStyle));
-      } else if (keywords.contains(upper)) {
-        spans.add(TextSpan(text: token, style: keywordStyle));
-      } else if (_headers.contains(token.toLowerCase())) {
-        spans.add(TextSpan(text: token, style: columnStyle));
-      } else {
-        spans.add(TextSpan(text: token, style: normalStyle));
-      }
-    }
-
-    return TextSpan(children: spans);
+    return _sqlEngine.buildHighlightedSqlText(text, isHint: isHint);
   }
 
   Widget _buildOverlayIcon(String asset, double width, String description) {
@@ -1029,13 +725,6 @@ class _VioreHqScreenState extends State<VioreHqScreen> {
       ),
     );
   }
-}
-
-class _QueryResult {
-  final List<Map<String, String>> rows;
-  final List<String> columns;
-
-  _QueryResult({required this.rows, required this.columns});
 }
 
 class FloatingBubble extends StatefulWidget {
@@ -1128,7 +817,12 @@ class _GlowingClueState extends State<GlowingClue>
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: const Color.fromARGB(255, 254, 255, 213).withOpacity(_glow.value * 0.40),
+                color: const Color.fromARGB(
+                  255,
+                  254,
+                  255,
+                  213,
+                ).withOpacity(_glow.value * 0.40),
                 blurRadius: 13 + (_glow.value * 5),
                 spreadRadius: 1 + (_glow.value * 2),
               ),
