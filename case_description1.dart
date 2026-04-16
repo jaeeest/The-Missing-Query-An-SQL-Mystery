@@ -105,7 +105,7 @@ class ProfileFlipCard extends StatelessWidget {
         );
       },
       child: Image.asset(
-        'assets/character_profile$pageNumber.png',
+        'assets/character_profile$pageNumber.gif',
         fit: BoxFit.contain,
       ),
     );
