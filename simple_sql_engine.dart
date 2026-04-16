@@ -453,7 +453,7 @@ class SimpleSqlEngine {
   }
 
   double? _numericValueIfPossible(String value) {
-    final cleaned = value.replaceAll(',', '').trim();
+    final cleaned = value.replaceAll(',', '').replaceAll('\$', '').trim();
     return double.tryParse(cleaned);
   }
 }
