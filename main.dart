@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sql_mystery/page_transition.dart';
 import 'case_description1.dart';
-import 'exhibition_hall_screen.dart';
-import 'viore_hq_screen.dart';
-import 'back_alley_screen.dart';
-import 'pearl_district.dart';
-import 'the_loupe_screen.dart';
-import 'police_station_screen.dart';
-import 'page_transition.dart';
+import 'case_description2.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,22 +16,14 @@ void main() {
 class CaseSelectionApp extends StatelessWidget {
   const CaseSelectionApp({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Luckiest Guy'),
-      home: const CaseSelectionScreen(),
-      routes: {
-        '/exhibition_hall': (context) => const ExhibitionHallScreen(),
-        '/viore_hq': (context) => const VioreHqScreen(),
-        '/back_alley': (context) => const BackAlleyScreen(),
-        '/insurance': (context) => const PearlDistrictScreen(),
-        '/the_loupe': (context) => const LoupeScreen(),
-        '/police_station': (context) => const PoliceStationScreen(),
-      },
-    );
-  }
+@override
+Widget build(BuildContext context) {
+  return MaterialApp(
+    debugShowCheckedModeBanner: false,
+    theme: ThemeData(fontFamily: 'Luckiest Guy'),
+    home: const CaseSelectionScreen(),
+  );
+}
 }
 
 // --- SCREEN: CASE SELECTION ---
@@ -104,9 +91,17 @@ class CaseSelectionScreen extends StatelessWidget {
                           isLocked: false,
                         ),
                       ),
-                      const CaseFolder(
-                        caseTitle: "CASE FILE 02:\n???",
-                        isLocked: true,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            slideRoute(const CaseDescription2()),
+                          );
+                        },
+                        child: const CaseFolder(
+                          caseTitle: "CASE FILE 02:\nProject Chimera",
+                          isLocked: false,
+                        ),
                       ),
                       const CaseFolder(
                         caseTitle: "CASE FILE 03:\n???",
