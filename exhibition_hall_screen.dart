@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'simple_sql_engine.dart';
 
 class ExhibitionHallScreen extends StatefulWidget {
   const ExhibitionHallScreen({super.key});
@@ -30,35 +31,127 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen> {
     'tool_used',
   ];
 
- final List<List<String>> _allLogs = [
-    ['N385', '0:05:00', '192.168.1.10', 'Lobby_Cam_01', 'HEARTBEAT', 'SysCheck',],
+  final List<List<String>> _allLogs = [
+    [
+      'N385',
+      '0:05:00',
+      '192.168.1.10',
+      'Lobby_Cam_01',
+      'HEARTBEAT',
+      'SysCheck',
+    ],
     ['N386', '0:12:00', '10.0.0.12', 'Staff_WiFi', 'LOGIN', 'Mobile_OS'],
     ['N387', '0:30:00', '208.70.1.12', 'Giovanni_Email', 'SYNC', 'Exchange'],
-    ['N388', '1:00:00', '192.168.1.50', 'Server_Room', 'TEMP_CHECK','IoT_Sensor',],
-    ['N389', '1:15:00', '172.16.5.10', 'External_Gate', 'SCAN_CARD', 'RFID_Reader',],
+    [
+      'N388',
+      '1:00:00',
+      '192.168.1.50',
+      'Server_Room',
+      'TEMP_CHECK',
+      'IoT_Sensor',
+    ],
+    [
+      'N389',
+      '1:15:00',
+      '172.16.5.10',
+      'External_Gate',
+      'SCAN_CARD',
+      'RFID_Reader',
+    ],
     ['N390', '1:20:00', '45.12.90.1', 'Web_Server', 'PING', 'Unknown'],
     ['N391', '1:45:00', '192.168.1.15', 'Main_Server', 'REINDEX', 'SQL_Admin'],
     ['N392', '1:55:00', '10.0.0.8', 'Staff_WiFi', 'DISCONNECT', 'Timeout'],
     ['N399', '2:00:00', '192.168.1.15', 'Main_Server', 'BACKUP', 'ADMIN_ROSSI'],
-    ['N400a', '2:05:00','192.168.1.20','Hall_Monitor','REBOOT','System_Task',],
+    [
+      'N400a',
+      '2:05:00',
+      '192.168.1.20',
+      'Hall_Monitor',
+      'REBOOT',
+      'System_Task',
+    ],
     ['N400', '2:15:00', '10.0.0.5', 'Vault_Gate', 'FAILED_LOGIN', 'Unknown'],
-    ['N400b','2:20:00','172.16.10.5','Viore_Proxy','VPN_CONNECT','OpenVPN',],
+    [
+      'N400b',
+      '2:20:00',
+      '172.16.10.5',
+      'Viore_Proxy',
+      'VPN_CONNECT',
+      'OpenVPN',
+    ],
     ['N400c', '2:35:00', '10.0.0.15', 'Guest_WiFi', 'DOWNLOAD', 'Browser'],
     ['N400d', '2:45:00', '192.168.1.12', 'CCTV_Main', 'ROTATE_LOGS', 'CronJob'],
-    ['N401','2:50:00','172.16.10.20','Vault_Gate','PRT_SCAN','NullByte-v7',],
-    ['N402','3:00:00','172.16.10.20','Vault_Lock','OVERRIDE','NullByte-v7',],
-    ['N403','3:05:00','172.16.10.20','Pearl_Pedestal','OPEN','ADMIN_ROSSI',],
-    ['N403a','3:10:00','172.16.10.20','Exit_Sensor','TRIGGER','Laser_Trip',],
-    ['N403b','3:15:00','192.168.1.15','Main_Server','SYNC_COMPLETE','SQL_Admin',],
+    [
+      'N401',
+      '2:50:00',
+      '172.16.10.20',
+      'Vault_Gate',
+      'PORT_SCAN',
+      'NullByte-v7',
+    ],
+    [
+      'N402',
+      '3:00:00',
+      '172.16.10.20',
+      'Vault_Lock',
+      'OVERRIDE',
+      'NullByte-v7',
+    ],
+    [
+      'N403',
+      '3:05:00',
+      '172.16.10.20',
+      'Pearl_Pedestal',
+      'OPEN',
+      'ADMIN_ROSSI',
+    ],
+    [
+      'N403a',
+      '3:10:00',
+      '172.16.10.20',
+      'Exit_Sensor',
+      'TRIGGER',
+      'Laser_Trip',
+    ],
+    [
+      'N403b',
+      '3:15:00',
+      '192.168.1.15',
+      'Main_Server',
+      'SYNC_COMPLETE',
+      'SQL_Admin',
+    ],
     ['N403c', '3:30:00', '10.0.0.1', 'Router_Main', 'RESTART', 'Admin_Panel'],
-    ['N403d','3:45:00','45.12.90.1','Web_Server','DDOS_ATTACK', 'Botnet_01',],
+    [
+      'N403d',
+      '3:45:00',
+      '45.12.90.1',
+      'Web_Server',
+      'DDOS_ATTACK',
+      'Botnet_01',
+    ],
     ['N403e', '3:50:00', '192.168.1.1', 'Firewall', 'BLOCK_IP', 'Auto_Guard'],
-    ['N403f', '4:00:00', '192.168.1.10', 'Lobby_Cam_01', 'HEARTBEAT', 'SysCheck',],
-    ['N403g', '4:15:00', '172.16.5.15', 'Service_Lift', 'CALIBRATE', 'Mech_App',],
+    [
+      'N403f',
+      '4:00:00',
+      '192.168.1.10',
+      'Lobby_Cam_01',
+      'HEARTBEAT',
+      'SysCheck',
+    ],
+    [
+      'N403g',
+      '4:15:00',
+      '172.16.5.15',
+      'Service_Lift',
+      'CALIBRATE',
+      'Mech_App',
+    ],
     ['N404', '4:30:00', '208.70.1.12', 'Giovanni_Email', 'LOGIN', 'Outlook'],
     ['N405', '4:45:00', '10.0.0.12', 'Staff_WiFi', 'LOGIN', 'Mobile_OS'],
   ];
 
+  late final SimpleSqlEngine _sqlEngine;
   late List<Map<String, String>> _allLogMaps;
   late List<Map<String, String>> _filteredLogMaps;
   late List<String> _visibleHeaders;
@@ -66,6 +159,7 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen> {
   @override
   void initState() {
     super.initState();
+
     _allLogMaps = _allLogs.map((row) {
       return {
         'log_id': row[0],
@@ -77,12 +171,20 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen> {
       };
     }).toList();
 
+    _sqlEngine = SimpleSqlEngine(
+      tableName: 'network_logs',
+      headers: _headers,
+      rows: _allLogMaps,
+      timeColumns: const {'access_time'},
+    );
+
     _filteredLogMaps = List.from(_allLogMaps);
     _visibleHeaders = List.from(_headers);
 
     _sqlController.addListener(() {
       if (mounted) setState(() {});
     });
+
     _answerController.addListener(() {
       if (mounted) setState(() {});
     });
@@ -109,7 +211,7 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen> {
     }
 
     try {
-      final result = _executeSimpleSql(rawQuery);
+      final result = _sqlEngine.execute(rawQuery);
 
       setState(() {
         _filteredLogMaps = result.rows;
@@ -127,190 +229,6 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen> {
         const SnackBar(content: Text('Invalid or unsupported query format.')),
       );
     }
-  }
-
-  _QueryResult _executeSimpleSql(String rawQuery) {
-    final query = rawQuery.trim();
-    final upper = query.toUpperCase();
-
-    if (!upper.startsWith('SELECT ')) {
-      throw Exception('Only SELECT queries are supported.');
-    }
-
-    final fromMatch = RegExp(
-      r'\bFROM\b',
-      caseSensitive: false,
-    ).firstMatch(query);
-    if (fromMatch == null) {
-      throw Exception('Missing FROM clause.');
-    }
-
-    final selectPart = query.substring(6, fromMatch.start).trim();
-    final afterFrom = query.substring(fromMatch.end).trim();
-
-    final whereMatch = RegExp(
-      r'\bWHERE\b',
-      caseSensitive: false,
-    ).firstMatch(afterFrom);
-    final orderByMatch = RegExp(
-      r'\bORDER\s+BY\b',
-      caseSensitive: false,
-    ).firstMatch(afterFrom);
-    final limitMatch = RegExp(
-      r'\bLIMIT\b',
-      caseSensitive: false,
-    ).firstMatch(afterFrom);
-
-    int cutIndex = afterFrom.length;
-    for (final match in [whereMatch, orderByMatch, limitMatch]) {
-      if (match != null && match.start < cutIndex) {
-        cutIndex = match.start;
-      }
-    }
-
-    final tableName = afterFrom.substring(0, cutIndex).trim();
-    if (tableName.toLowerCase() != 'network_logs') {
-      throw Exception('Unknown table.');
-    }
-
-    List<String> selectedColumns;
-    if (selectPart == '*') {
-      selectedColumns = List.from(_headers);
-    } else {
-      selectedColumns = selectPart
-          .split(',')
-          .map((e) => e.trim().toLowerCase())
-          .where((e) => e.isNotEmpty)
-          .toList();
-
-      for (final col in selectedColumns) {
-        if (!_headers.contains(col)) {
-          throw Exception('Unknown column: $col');
-        }
-      }
-    }
-
-    String? whereClause;
-    String? orderByColumn;
-    bool orderDescending = false;
-    int? limit;
-
-    if (whereMatch != null) {
-      final start = whereMatch.end;
-      int end = afterFrom.length;
-      if (orderByMatch != null && orderByMatch.start > whereMatch.start) {
-        end = orderByMatch.start;
-      } else if (limitMatch != null && limitMatch.start > whereMatch.start) {
-        end = limitMatch.start;
-      }
-      whereClause = afterFrom.substring(start, end).trim();
-    }
-
-    if (orderByMatch != null) {
-      final start = orderByMatch.end;
-      int end = afterFrom.length;
-      if (limitMatch != null && limitMatch.start > orderByMatch.start) {
-        end = limitMatch.start;
-      }
-      final orderClause = afterFrom.substring(start, end).trim();
-      final parts = orderClause.split(RegExp(r'\s+'));
-      if (parts.isNotEmpty) {
-        orderByColumn = parts.first.toLowerCase();
-        if (!_headers.contains(orderByColumn)) {
-          throw Exception('Unknown ORDER BY column.');
-        }
-        if (parts.length > 1) {
-          orderDescending = parts[1].toUpperCase() == 'DESC';
-        }
-      }
-    }
-
-    if (limitMatch != null) {
-      final limitText = afterFrom.substring(limitMatch.end).trim();
-      limit = int.tryParse(limitText.split(RegExp(r'\s+')).first);
-    }
-
-    List<Map<String, String>> rows = List.from(_allLogMaps);
-
-    if (whereClause != null && whereClause.isNotEmpty) {
-      rows = rows
-          .where((row) => _evaluateWhereClause(row, whereClause!))
-          .toList();
-    }
-
-    if (orderByColumn != null) {
-      rows.sort((a, b) {
-        final av = (a[orderByColumn] ?? '').toUpperCase();
-        final bv = (b[orderByColumn] ?? '').toUpperCase();
-        return orderDescending ? bv.compareTo(av) : av.compareTo(bv);
-      });
-    }
-
-    if (limit != null && limit >= 0 && limit < rows.length) {
-      rows = rows.take(limit).toList();
-    }
-
-    return _QueryResult(rows: rows, columns: selectedColumns);
-  }
-
-  bool _evaluateWhereClause(Map<String, String> row, String clause) {
-    final orParts = clause.split(RegExp(r'\s+OR\s+', caseSensitive: false));
-
-    for (final orPart in orParts) {
-      final andParts = orPart.split(RegExp(r'\s+AND\s+', caseSensitive: false));
-      bool andResult = true;
-
-      for (final condition in andParts) {
-        if (!_evaluateCondition(row, condition.trim())) {
-          andResult = false;
-          break;
-        }
-      }
-
-      if (andResult) return true;
-    }
-
-    return false;
-  }
-
-  bool _evaluateCondition(Map<String, String> row, String condition) {
-    final likeMatch = RegExp(
-      r"^(\w+)\s+LIKE\s+'([^']*)'$",
-      caseSensitive: false,
-    ).firstMatch(condition);
-
-    if (likeMatch != null) {
-      final column = likeMatch.group(1)!.toLowerCase();
-      final pattern = likeMatch.group(2)!;
-      final value = row[column] ?? '';
-      if (!_headers.contains(column)) return false;
-
-      final regexPattern = '^${RegExp.escape(pattern).replaceAll('%', '.*')}\$';
-      return RegExp(regexPattern, caseSensitive: false).hasMatch(value);
-    }
-
-    final eqMatch = RegExp(
-      r"^(\w+)\s*(=|!=|<>)\s*'([^']*)'$",
-      caseSensitive: false,
-    ).firstMatch(condition);
-
-    if (eqMatch != null) {
-      final column = eqMatch.group(1)!.toLowerCase();
-      final op = eqMatch.group(2)!;
-      final expected = eqMatch.group(3)!;
-      final actual = row[column] ?? '';
-      if (!_headers.contains(column)) return false;
-
-      switch (op) {
-        case '=':
-          return actual.toUpperCase() == expected.toUpperCase();
-        case '!=':
-        case '<>':
-          return actual.toUpperCase() != expected.toUpperCase();
-      }
-    }
-
-    return false;
   }
 
   Widget _buildAsteriskIcon(double width) {
@@ -380,49 +298,6 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen> {
     );
   }
 
-  Widget _buildSqlKeyboardPreview() {
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-
-    if (!isQueryVisible || keyboardHeight == 0 || isTableVisible) {
-      return const SizedBox.shrink();
-    }
-
-    return Positioned(
-      left: 20,
-      right: 20,
-      bottom: keyboardHeight + 10,
-      child: Material(
-        color: Colors.transparent,
-        child: Container(
-          constraints: const BoxConstraints(maxHeight: 140),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.97),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFF7A4B28), width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.18),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: SingleChildScrollView(
-            child: RichText(
-              text: _buildSqlHighlightedText(
-                _sqlController.text.isEmpty
-                    ? "ENTER SQL QUERY..."
-                    : _sqlController.text,
-                isHint: _sqlController.text.isEmpty,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -485,7 +360,6 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen> {
                   ),
                 ),
               ),
-
               Positioned(
                 top: constraints.maxHeight * 0.53,
                 left: constraints.maxWidth * 0.11,
@@ -527,7 +401,6 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen> {
                   "Dusty footprints leading to the glass pedestal.",
                 ),
               ),
-
               if (activeInvestigationText != null)
                 Center(
                   child: SizedBox(
@@ -540,7 +413,6 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen> {
                     ),
                   ),
                 ),
-
               if (isQueryVisible)
                 AnimatedPopup(child: _buildPopUpContainer(constraints)),
               if (isQuestionVisible)
@@ -549,8 +421,6 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen> {
                 AnimatedPopup(child: _buildCorrectPopUp(constraints)),
               if (isWrongVisible)
                 AnimatedPopup(child: _buildWrongPopUp(constraints)),
-
-              _buildSqlKeyboardPreview(),
               _buildAnswerKeyboardPreview(),
             ],
           );
@@ -615,7 +485,10 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen> {
                     ),
                     decoration: const InputDecoration(
                       hintText: "TYPE ANSWER...",
-                      hintStyle: TextStyle(color: Colors.blueGrey, fontSize: 12),
+                      hintStyle: TextStyle(
+                        color: Colors.blueGrey,
+                        fontSize: 12,
+                      ),
                       border: InputBorder.none,
                     ),
                   ),
@@ -938,86 +811,7 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen> {
   }
 
   TextSpan _buildSqlHighlightedText(String text, {bool isHint = false}) {
-    if (isHint) {
-      return const TextSpan(
-        text: "ENTER SQL QUERY...",
-        style: TextStyle(
-          color: Colors.grey,
-          fontSize: 14,
-          fontFamily: 'Consolas',
-          fontWeight: FontWeight.bold,
-          height: 1.5,
-        ),
-      );
-    }
-
-    final keywordStyle = const TextStyle(
-      color: Color(0xFF7B1FA2),
-      fontSize: 14,
-      fontFamily: 'Consolas',
-      fontWeight: FontWeight.bold,
-      height: 1.5,
-    );
-
-    final columnStyle = const TextStyle(
-      color: Color(0xFF1565C0),
-      fontSize: 14,
-      fontFamily: 'Consolas',
-      fontWeight: FontWeight.bold,
-      height: 1.5,
-    );
-
-    final stringStyle = const TextStyle(
-      color: Color(0xFF2E7D32),
-      fontSize: 14,
-      fontFamily: 'Consolas',
-      fontWeight: FontWeight.bold,
-      height: 1.5,
-    );
-
-    final normalStyle = const TextStyle(
-      color: Colors.black,
-      fontSize: 14,
-      fontFamily: 'Consolas',
-      fontWeight: FontWeight.bold,
-      height: 1.5,
-    );
-
-    final tokens = RegExp(
-      r"('[^']*'|\w+|[=,*();<>!]+|\s+|.)",
-    ).allMatches(text).map((m) => m.group(0)!).toList();
-
-    const keywords = {
-      'SELECT',
-      'FROM',
-      'WHERE',
-      'AND',
-      'OR',
-      'LIKE',
-      'ORDER',
-      'BY',
-      'ASC',
-      'DESC',
-      'LIMIT',
-    };
-
-    final spans = <TextSpan>[];
-
-    for (final token in tokens) {
-      final upper = token.toUpperCase();
-
-      if (token.startsWith("'") && token.endsWith("'")) {
-        spans.add(TextSpan(text: token, style: stringStyle));
-      } else if (keywords.contains(upper)) {
-        spans.add(TextSpan(text: token, style: keywordStyle));
-      } else if (_headers.contains(token.toLowerCase())) {
-        spans.add(TextSpan(text: token, style: columnStyle));
-      } else {
-        spans.add(TextSpan(text: token, style: normalStyle));
-      }
-    }
-
-    return TextSpan(children: spans);
+    return _sqlEngine.buildHighlightedSqlText(text, isHint: isHint);
   }
 
   Widget _buildOverlayIcon(String asset, double width, String description) {
@@ -1034,13 +828,6 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen> {
       ),
     );
   }
-}
-
-class _QueryResult {
-  final List<Map<String, String>> rows;
-  final List<String> columns;
-
-  _QueryResult({required this.rows, required this.columns});
 }
 
 class FloatingBubble extends StatefulWidget {
@@ -1130,22 +917,17 @@ class _GlowingClueState extends State<GlowingClue>
       builder: (context, child) {
         return Container(
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
+            borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFFFCC).withOpacity(_glow.value),
+                color: const Color(0xFFFFFFA8).withOpacity(_glow.value * 0.55),
                 blurRadius: 20 + (_glow.value * 10),
-                spreadRadius: 3 + (_glow.value * 4),
+                spreadRadius: 3 + (_glow.value * 3),
               ),
               BoxShadow(
-                color: const Color(0xFFFFD54F).withOpacity(_glow.value * 0.85),
-                blurRadius: 30 + (_glow.value * 50),
-                spreadRadius: 2 + (_glow.value * 3),
-              ),
-              BoxShadow(
-                color: const Color(0xFF6A008A).withOpacity(_glow.value * 0.35),
-                blurRadius: 42 + (_glow.value * 10),
-                spreadRadius: 1 + (_glow.value * 2),
+                color: const Color(0xFFB388FF).withOpacity(_glow.value * 0.35),
+                blurRadius: 30 + (_glow.value * 12),
+                spreadRadius: 2 + (_glow.value * 2),
               ),
             ],
           ),
