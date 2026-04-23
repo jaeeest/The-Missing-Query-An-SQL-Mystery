@@ -10,11 +10,11 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
 
   bool get hasLives => livesManager.currentLives > 0;
 
-  void initCase2Helper() {
+  void initCaseHelper() {
     livesManager.addListener(_refreshLives);
   }
 
-  void disposeCase2Helper() {
+  void disposeCaseHelper() {
     livesManager.removeListener(_refreshLives);
     voicePlayer.dispose();
     feedbackPlayer.dispose();
