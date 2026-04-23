@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'simple_sql_engine.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'lives_manager.dart';
 
 class ComlabScreen extends StatefulWidget {
   const ComlabScreen({super.key});
@@ -17,6 +19,105 @@ class _ComlabScreenState extends State<ComlabScreen> {
   bool isWrongVisible = false;
 
   String? activeInvestigationText;
+
+  final AudioPlayer _voicePlayer = AudioPlayer();
+  final AudioPlayer _feedbackPlayer = AudioPlayer();
+  final LivesManager _livesManager = LivesManager.instance;
+
+  bool get _hasLives => _livesManager.currentLives > 0;
+
+  Future<void> _playClueSound() async {
+    await _voicePlayer.stop();
+    await _voicePlayer.play(AssetSource('audio/voice_over.mp3'));
+  }
+
+  Future<void> _stopClueSound() async {
+    await _voicePlayer.stop();
+  }
+
+  Future<void> _playCorrectSound() async {
+    await _feedbackPlayer.stop();
+    await _feedbackPlayer.play(AssetSource('audio/correct.mp3'));
+  }
+
+  Future<void> _playWrongSound() async {
+    await _feedbackPlayer.stop();
+    await _feedbackPlayer.play(AssetSource('audio/wrong.wav'));
+  }
+
+  void _showNoLivesPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2B1B3D),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFFFD54F), width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.35),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'OUT OF LIVES',
+                  style: TextStyle(
+                    fontFamily: 'Luckiest Guy',
+                    fontSize: 24,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  _livesManager.isFull
+                      ? 'Your lives are full.'
+                      : 'Wait ${_livesManager.formattedCountdown} for the next heart.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: 'Consolas',
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                InkWell(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFD54F),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(
+                        fontFamily: 'Luckiest Guy',
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   final TextEditingController _sqlController = TextEditingController();
   final TextEditingController _answerController = TextEditingController();
@@ -99,10 +200,19 @@ class _ComlabScreenState extends State<ComlabScreen> {
     _answerController.addListener(() {
       if (mounted) setState(() {});
     });
+
+    _livesManager.addListener(_refreshLives);
+  }
+
+  void _refreshLives() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    _livesManager.removeListener(_refreshLives);
+    _voicePlayer.dispose();
+    _feedbackPlayer.dispose();
     _sqlController.dispose();
     _answerController.dispose();
     _sqlScrollController.dispose();
@@ -117,6 +227,33 @@ class _ComlabScreenState extends State<ComlabScreen> {
     final normalized = _normalizeAnswer(input);
     const acceptedAnswers = {'JAMIE WILLSON', 'JAMIE'};
     return acceptedAnswers.contains(normalized);
+  }
+
+  void _submitAnswer() async {
+    if (!_hasLives) {
+      setState(() {
+        isQuestionVisible = false;
+      });
+      _showNoLivesPopup();
+      return;
+    }
+
+    if (_isComlabCorrectAnswer(_answerController.text)) {
+      await _playCorrectSound();
+      setState(() {
+        isQuestionVisible = false;
+        isCorrectVisible = true;
+        isWrongVisible = false;
+      });
+    } else {
+      _livesManager.deductLife();
+      await _playWrongSound();
+      setState(() {
+        isQuestionVisible = false;
+        isWrongVisible = true;
+        isCorrectVisible = false;
+      });
+    }
   }
 
   void _runSqlQuery() {
@@ -160,16 +297,24 @@ class _ComlabScreenState extends State<ComlabScreen> {
         child: FloatingBubble(
           child: GestureDetector(
             onTap: () {
+              if (!_hasLives) {
+                _showNoLivesPopup();
+                return;
+              }
+
               setState(() {
                 isQuestionVisible = true;
                 isQueryVisible = false;
                 isTableVisible = false;
               });
             },
-            child: Image.asset(
-              'assets/asterisk.png',
-              width: width,
-              fit: BoxFit.contain,
+            child: Opacity(
+              opacity: _hasLives ? 1.0 : 0.45,
+              child: Image.asset(
+                'assets/asterisk.png',
+                width: width,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
         ),
@@ -206,7 +351,7 @@ class _ComlabScreenState extends State<ComlabScreen> {
           ),
           child: Text(
             _answerController.text.isEmpty
-                ? 'TYPE ANSWER...'
+                ? (_hasLives ? 'TYPE ANSWER...' : 'NO LIVES LEFT')
                 : _answerController.text,
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -232,7 +377,10 @@ class _ComlabScreenState extends State<ComlabScreen> {
           return Stack(
             children: [
               Positioned.fill(
-                child: Image.asset('assets/Case2/comlab_loc.png', fit: BoxFit.fill),
+                child: Image.asset(
+                  'assets/Case2/comlab_loc.png',
+                  fit: BoxFit.fill,
+                ),
               ),
               SafeArea(
                 child: Padding(
@@ -312,8 +460,10 @@ class _ComlabScreenState extends State<ComlabScreen> {
                     child: InvestigationTypewriter(
                       key: ValueKey(activeInvestigationText),
                       text: activeInvestigationText!,
-                      onFinished: () =>
-                          setState(() => activeInvestigationText = null),
+                      onFinished: () async {
+                        await _stopClueSound();
+                        setState(() => activeInvestigationText = null);
+                      },
                     ),
                   ),
                 ),
@@ -349,7 +499,7 @@ class _ComlabScreenState extends State<ComlabScreen> {
                 ),
               ),
               Positioned(
-                top: 15,
+                top: 25,
                 right: 15,
                 child: InkWell(
                   onTap: () => setState(() => isQuestionVisible = false),
@@ -379,7 +529,8 @@ class _ComlabScreenState extends State<ComlabScreen> {
                   opacity: 0.50,
                   child: TextField(
                     controller: _answerController,
-                    autofocus: true,
+                    autofocus: _hasLives,
+                    enabled: _hasLives,
                     textAlign: TextAlign.center,
                     textCapitalization: TextCapitalization.characters,
                     style: const TextStyle(
@@ -388,9 +539,12 @@ class _ComlabScreenState extends State<ComlabScreen> {
                       fontWeight: FontWeight.bold,
                       fontFamily: 'Luckiest Guy',
                     ),
-                    decoration: const InputDecoration(
-                      hintText: "TYPE ANSWER...",
-                      hintStyle: TextStyle(color: Colors.grey, fontSize: 12),
+                    decoration: InputDecoration(
+                      hintText: _hasLives ? "TYPE ANSWER..." : "NO LIVES LEFT",
+                      hintStyle: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                      ),
                       border: InputBorder.none,
                     ),
                   ),
@@ -401,23 +555,15 @@ class _ComlabScreenState extends State<ComlabScreen> {
                 left: 35,
                 right: 0,
                 child: Center(
-                  child: InkWell(
-                    onTap: () {
-                      if (_isComlabCorrectAnswer(_answerController.text)) {
-                        setState(() {
-                          isQuestionVisible = false;
-                          isCorrectVisible = true;
-                          isWrongVisible = false;
-                        });
-                      } else {
-                        setState(() {
-                          isQuestionVisible = false;
-                          isWrongVisible = true;
-                          isCorrectVisible = false;
-                        });
-                      }
-                    },
-                    child: Image.asset('assets/submit_button.png', height: 35),
+                  child: Opacity(
+                    opacity: _hasLives ? 1.0 : 0.45,
+                    child: InkWell(
+                      onTap: _hasLives ? _submitAnswer : _showNoLivesPopup,
+                      child: Image.asset(
+                        'assets/submit_button.png',
+                        height: 35,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -570,7 +716,7 @@ class _ComlabScreenState extends State<ComlabScreen> {
     }
   }
 
-List<TableRow> _buildTableRowsList() {
+  List<TableRow> _buildTableRowsList() {
     const cellStyle = TextStyle(
       fontFamily: 'Consolas',
       color: Colors.black,
@@ -722,7 +868,13 @@ List<TableRow> _buildTableRowsList() {
     return GlowingClue(
       child: FloatingBubble(
         child: GestureDetector(
-          onTap: () => setState(() => activeInvestigationText = description),
+          onTap: () async {
+            await _playClueSound();
+
+            setState(() {
+              activeInvestigationText = description;
+            });
+          },
           child: Image.asset(asset, width: width, fit: BoxFit.contain),
         ),
       ),
