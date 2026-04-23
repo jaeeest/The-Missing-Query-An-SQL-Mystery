@@ -5,8 +5,8 @@ import 'gym_screen.dart';
 import 'it_screen.dart';
 import 'icto_screen.dart';
 import 'dean_screen.dart';
+import 'lives_manager.dart';
 
-// --- FLOATING ANIMATION ---
 class FloatingBubble extends StatefulWidget {
   final Widget child;
   final Duration duration;
@@ -134,8 +134,162 @@ class _GlowingMapLabelState extends State<GlowingMapLabel> {
 }
 
 // --- MAP SCREEN ---
-class CaseMap2 extends StatelessWidget {
-  const CaseMap2 ({super.key});
+class CaseMap2 extends StatefulWidget {
+  const CaseMap2({super.key});
+
+  @override
+  State<CaseMap2> createState() => _CaseMap2State();
+}
+
+class _CaseMap2State extends State<CaseMap2> {
+  final LivesManager _livesManager = LivesManager.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _livesManager.addListener(_refresh);
+  }
+
+  @override
+  void dispose() {
+    _livesManager.removeListener(_refresh);
+    super.dispose();
+  }
+
+  void _refresh() {
+    if (mounted) setState(() {});
+  }
+
+  void _showLivesPopup(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Lives',
+      barrierColor: Colors.black.withOpacity(0.55),
+      transitionDuration: const Duration(milliseconds: 250),
+      pageBuilder: (_, __, ___) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            void dialogRefresh() => setDialogState(() {});
+
+            _livesManager.addListener(dialogRefresh);
+
+            return WillPopScope(
+              onWillPop: () async {
+                _livesManager.removeListener(dialogRefresh);
+                return true;
+              },
+              child: GestureDetector(
+                onTap: () {
+                  _livesManager.removeListener(dialogRefresh);
+                  Navigator.pop(context);
+                },
+                child: Material(
+                  color: Colors.transparent,
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: Stack(
+                        children: [
+                          Image.asset(
+                            'assets/lives_counter.png',
+                            width: MediaQuery.of(context).size.width * 0.40,
+                            fit: BoxFit.contain,
+                          ),
+
+                          Positioned(
+                            top: 10,
+                            right: 20,
+                            child: InkWell(
+                              onTap: () {
+                                _livesManager.removeListener(dialogRefresh);
+                                Navigator.pop(context);
+                              },
+                              child: Image.asset(
+                                'assets/close_button.png',
+                                height: 20,
+                              ),
+                            ),
+                          ),
+
+                          Positioned.fill(
+                            child: Stack(
+                              children: [
+                                // LIFE COUNT
+                                Positioned(
+                                  top: 85,
+                                  left: 0,
+                                  right: 0,
+                                  child: Center(
+                                    child: Text(
+                                      '${_livesManager.currentLives}',
+                                      style: const TextStyle(
+                                        fontFamily: 'Luckiest Guy',
+                                        fontSize: 23,
+                                        color: Color(0xFFF8F3D4),
+                                        shadows: [
+                                          Shadow(
+                                            offset: Offset(2, 2),
+                                            blurRadius: 0,
+                                            color: Color(0xFF5A2E2E),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                // TIMER 
+                                Positioned(
+                                  bottom: 33, 
+                                  left: 90,
+                                  right: 0,
+                                  child: Center(
+                                    child: Text(
+                                      _livesManager.isFull
+                                          ? 'FULL'
+                                          : _livesManager.formattedCountdown,
+                                      style: const TextStyle(
+                                        fontFamily: 'Luckiest Guy',
+                                        fontSize: 18,
+                                        color: Color(0xFFF8F3D4),
+                                        shadows: [
+                                          Shadow(
+                                            offset: Offset(2, 2),
+                                            blurRadius: 0,
+                                            color: Color(0xFF5A2E2E),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+      transitionBuilder: (_, animation, __, child) {
+        return FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.94, end: 1.0).animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
+            ),
+            child: child,
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,11 +306,7 @@ class CaseMap2 extends StatelessWidget {
               Positioned(
                 top: constraints.maxHeight * 0.23,
                 left: constraints.maxWidth * 0.11,
-                child: _buildMapLabel(
-                  context,
-                  'assets/Case2/comlab.png',
-                  100,
-                ),
+                child: _buildMapLabel(context, 'assets/Case2/comlab.png', 100),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.15,
@@ -222,7 +372,7 @@ class CaseMap2 extends StatelessWidget {
                               children: [
                                 Image.asset('assets/notebook.png', height: 50),
                                 const SizedBox(width: 10),
-                                _buildHUDItem('assets/lives.png', 'FULL'),
+                                _buildLivesHUDItem(context),
                                 const SizedBox(width: 10),
                                 _buildHUDItem(
                                   'assets/points.png',
@@ -264,6 +414,29 @@ class CaseMap2 extends StatelessWidget {
             debugPrint("Location tapped: $asset");
           }
         },
+      ),
+    );
+  }
+
+  Widget _buildLivesHUDItem(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showLivesPopup(context),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Image.asset('assets/lives.png', height: 50),
+          Positioned(
+            right: 20,
+            child: Text(
+              '${_livesManager.currentLives}',
+              style: const TextStyle(
+                color: Color(0xFF4A2C15),
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
