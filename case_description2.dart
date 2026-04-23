@@ -74,11 +74,129 @@ class _TypewriterTextState extends State<TypewriterText> {
   }
 }
 
+// --- SMOOTH FRAME BY FRAME ANIMATION ---
+class FrameAnimation extends StatefulWidget {
+  final List<String> frames;
+  final double width;
+  final double height;
+  final Duration speed;
+
+  const FrameAnimation({
+    super.key,
+    required this.frames,
+    this.width = double.infinity,
+    this.height = double.infinity,
+    this.speed = const Duration(milliseconds: 120),
+  });
+
+  @override
+  State<FrameAnimation> createState() => _FrameAnimationState();
+}
+
+class _FrameAnimationState extends State<FrameAnimation> {
+  int _currentFrame = 0;
+  int _direction = 1;
+  Timer? _timer;
+  bool _isReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _prepareFrames();
+  }
+
+  @override
+  void didUpdateWidget(covariant FrameAnimation oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.frames != widget.frames) {
+      _timer?.cancel();
+      _currentFrame = 0;
+      _direction = 1;
+      _isReady = false;
+      _prepareFrames();
+    }
+  }
+
+  Future<void> _prepareFrames() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      for (final frame in widget.frames) {
+        await precacheImage(AssetImage(frame), context);
+      }
+
+      if (!mounted || widget.frames.isEmpty) return;
+
+      setState(() {
+        _isReady = true;
+      });
+
+      _timer = Timer.periodic(widget.speed, (timer) {
+        if (!mounted) return;
+
+        setState(() {
+          if (widget.frames.length == 1) return;
+
+          _currentFrame += _direction;
+
+          if (_currentFrame >= widget.frames.length - 1) {
+            _currentFrame = widget.frames.length - 1;
+            _direction = -1;
+          } else if (_currentFrame <= 0) {
+            _currentFrame = 0;
+            _direction = 1;
+          }
+        });
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.frames.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    if (!_isReady) {
+      return Image.asset(
+        widget.frames.first,
+        width: widget.width,
+        height: widget.height,
+        fit: BoxFit.contain,
+        gaplessPlayback: true,
+        filterQuality: FilterQuality.high,
+      );
+    }
+
+    return Image.asset(
+      widget.frames[_currentFrame],
+      width: widget.width,
+      height: widget.height,
+      fit: BoxFit.contain,
+      gaplessPlayback: true,
+      filterQuality: FilterQuality.high,
+    );
+  }
+}
+
 // --- PROFILE PAGE FLIP ---
 class ProfileFlipCard extends StatelessWidget {
   final int pageNumber;
 
   const ProfileFlipCard({super.key, required this.pageNumber});
+
+  List<String> _getFramesForPage(int pageNumber) {
+    const int frameCount = 16;
+
+    return List.generate(
+      frameCount,
+      (index) => 'assets/Case2/character_profile$pageNumber/${index + 1}.png',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,9 +222,10 @@ class ProfileFlipCard extends StatelessWidget {
               : child,
         );
       },
-      child: Image.asset(
-        'assets/Case2/character_profile$pageNumber.png',
-        fit: BoxFit.contain,
+      child: FrameAnimation(
+        key: ValueKey('frame_animation_$pageNumber'),
+        frames: _getFramesForPage(pageNumber),
+        speed: const Duration(milliseconds: 120),
       ),
     );
   }
@@ -126,7 +245,6 @@ class _CaseDescription2State extends State<CaseDescription2> {
   bool _isProfileVisible = false;
   int _profilePageNumber = 1;
 
-  // DESCRIPTION
   final List<String> _descriptions = [
     "At 03:00 AM on March 31st, the Global Innovators Scholarship committee received a silent alert for Jamie, the school’s top programmer and frontrunner for the \$50,000 award.",
     "Jamie’s submission, Project Chimera—a revolutionary security protocol—was found to be identical to an old GitHub repository from 2023. Jamie claims he has been framed, but the university’s internal server shows Jamie's account performed the upload.",
@@ -203,7 +321,6 @@ class _CaseDescription2State extends State<CaseDescription2> {
         child: SafeArea(
           child: Stack(
             children: [
-              // CONTENT FIRST
               Center(
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 500),
@@ -235,13 +352,12 @@ class _CaseDescription2State extends State<CaseDescription2> {
                 ),
               ),
 
-              // HEADER LAST
               Positioned(
-                top: 0,
+                top: -5,
                 left: 20,
                 right: 20,
                 child: SizedBox(
-                  height: 50,
+                  height: 70,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
@@ -267,7 +383,7 @@ class _CaseDescription2State extends State<CaseDescription2> {
                           ],
                         ),
                       ),
-                      Image.asset('assets/Case2/chimera.png', height: 50),
+                      Image.asset('assets/Case2/chimera.png', height: 80),
                     ],
                   ),
                 ),
@@ -316,9 +432,7 @@ class _CaseDescription2State extends State<CaseDescription2> {
           children: [
             Positioned.fill(
               child: Image.asset(
-                _isBoardVisible
-                    ? 'assets/case_bg1.png' // board
-                    : 'assets/case_bg.png', // description
+                _isBoardVisible ? 'assets/case_bg1.png' : 'assets/case_bg.png',
                 fit: BoxFit.fill,
               ),
             ),
