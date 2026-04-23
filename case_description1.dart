@@ -74,11 +74,96 @@ class _TypewriterTextState extends State<TypewriterText> {
   }
 }
 
+// --- FRAME BY FRAME ANIMATION ---
+class FrameAnimation extends StatefulWidget {
+  final List<String> frames;
+  final double width;
+  final double height;
+  final Duration speed;
+
+  const FrameAnimation({
+    super.key,
+    required this.frames,
+    this.width = double.infinity,
+    this.height = double.infinity,
+    this.speed = const Duration(milliseconds: 120),
+  });
+
+  @override
+  State<FrameAnimation> createState() => _FrameAnimationState();
+}
+
+class _FrameAnimationState extends State<FrameAnimation> {
+  int _currentFrame = 0;
+  int _direction = 1;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      for (final frame in widget.frames) {
+        await precacheImage(AssetImage(frame), context);
+      }
+
+      if (!mounted || widget.frames.isEmpty) return;
+
+      _timer = Timer.periodic(widget.speed, (timer) {
+        if (!mounted) return;
+
+        setState(() {
+          _currentFrame += _direction;
+
+          if (_currentFrame >= widget.frames.length - 1) {
+            _currentFrame = widget.frames.length - 1;
+            _direction = -1;
+          } else if (_currentFrame <= 0) {
+            _currentFrame = 0;
+            _direction = 1;
+          }
+        });
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.frames.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Image.asset(
+      widget.frames[_currentFrame],
+      width: widget.width,
+      height: widget.height,
+      fit: BoxFit.contain,
+      gaplessPlayback: true,
+      filterQuality: FilterQuality.high,
+    );
+  }
+}
+
 // --- PROFILE PAGE FLIP ---
 class ProfileFlipCard extends StatelessWidget {
   final int pageNumber;
 
   const ProfileFlipCard({super.key, required this.pageNumber});
+
+  List<String> _getFramesForPage(int pageNumber) {
+    const int frameCount = 16;
+
+    return List.generate(
+      frameCount,
+      (index) => 'assets/character_profile/character_profile$pageNumber/${index + 1}.png',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,9 +189,10 @@ class ProfileFlipCard extends StatelessWidget {
               : child,
         );
       },
-      child: Image.asset(
-        'assets/character_profile$pageNumber.gif',
-        fit: BoxFit.contain,
+      child: FrameAnimation(
+        key: ValueKey('frame_animation_$pageNumber'),
+        frames: _getFramesForPage(pageNumber),
+        speed: const Duration(milliseconds: 80),
       ),
     );
   }
@@ -315,9 +401,7 @@ class _CaseDescription1State extends State<CaseDescription1> {
           children: [
             Positioned.fill(
               child: Image.asset(
-                _isBoardVisible
-                    ? 'assets/case_bg1.png' // board
-                    : 'assets/case_bg.png', // description
+                _isBoardVisible ? 'assets/case_bg1.png' : 'assets/case_bg.png',
                 fit: BoxFit.fill,
               ),
             ),
