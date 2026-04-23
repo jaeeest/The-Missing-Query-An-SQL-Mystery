@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'simple_sql_engine.dart';
-import 'package:audioplayers/audioplayers.dart';
-import 'lives_manager.dart';
+import 'case_helper.dart';
 
 class ComlabScreen extends StatefulWidget {
   const ComlabScreen({super.key});
@@ -11,7 +10,7 @@ class ComlabScreen extends StatefulWidget {
   State<ComlabScreen> createState() => _ComlabScreenState();
 }
 
-class _ComlabScreenState extends State<ComlabScreen> {
+class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
   bool isQueryVisible = false;
   bool isTableVisible = false;
   bool isQuestionVisible = false;
@@ -20,104 +19,7 @@ class _ComlabScreenState extends State<ComlabScreen> {
 
   String? activeInvestigationText;
 
-  final AudioPlayer _voicePlayer = AudioPlayer();
-  final AudioPlayer _feedbackPlayer = AudioPlayer();
-  final LivesManager _livesManager = LivesManager.instance;
-
-  bool get _hasLives => _livesManager.currentLives > 0;
-
-  Future<void> _playClueSound() async {
-    await _voicePlayer.stop();
-    await _voicePlayer.play(AssetSource('audio/voice_over.mp3'));
-  }
-
-  Future<void> _stopClueSound() async {
-    await _voicePlayer.stop();
-  }
-
-  Future<void> _playCorrectSound() async {
-    await _feedbackPlayer.stop();
-    await _feedbackPlayer.play(AssetSource('audio/correct.mp3'));
-  }
-
-  Future<void> _playWrongSound() async {
-    await _feedbackPlayer.stop();
-    await _feedbackPlayer.play(AssetSource('audio/wrong.wav'));
-  }
-
-  void _showNoLivesPopup() {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2B1B3D),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFFFD54F), width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.35),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'OUT OF LIVES',
-                  style: TextStyle(
-                    fontFamily: 'Luckiest Guy',
-                    fontSize: 24,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  _livesManager.isFull
-                      ? 'Your lives are full.'
-                      : 'Wait ${_livesManager.formattedCountdown} for the next heart.',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontFamily: 'Consolas',
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                InkWell(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFD54F),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Text(
-                      'OK',
-                      style: TextStyle(
-                        fontFamily: 'Luckiest Guy',
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  bool get _hasLives => hasLives;
 
   final TextEditingController _sqlController = TextEditingController();
   final TextEditingController _answerController = TextEditingController();
@@ -173,6 +75,8 @@ class _ComlabScreenState extends State<ComlabScreen> {
   void initState() {
     super.initState();
 
+    initCaseHelper();
+
     _allLabMaps = _labAccessLogs.map((row) {
       return {
         'log_id': row[0],
@@ -200,19 +104,11 @@ class _ComlabScreenState extends State<ComlabScreen> {
     _answerController.addListener(() {
       if (mounted) setState(() {});
     });
-
-    _livesManager.addListener(_refreshLives);
-  }
-
-  void _refreshLives() {
-    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
-    _livesManager.removeListener(_refreshLives);
-    _voicePlayer.dispose();
-    _feedbackPlayer.dispose();
+    disposeCaseHelper();
     _sqlController.dispose();
     _answerController.dispose();
     _sqlScrollController.dispose();
@@ -234,20 +130,20 @@ class _ComlabScreenState extends State<ComlabScreen> {
       setState(() {
         isQuestionVisible = false;
       });
-      _showNoLivesPopup();
+      showNoLivesPopup();
       return;
     }
 
     if (_isComlabCorrectAnswer(_answerController.text)) {
-      await _playCorrectSound();
+      await playCorrectSound();
       setState(() {
         isQuestionVisible = false;
         isCorrectVisible = true;
         isWrongVisible = false;
       });
     } else {
-      _livesManager.deductLife();
-      await _playWrongSound();
+      livesManager.deductLife();
+      await playWrongSound();
       setState(() {
         isQuestionVisible = false;
         isWrongVisible = true;
@@ -296,9 +192,11 @@ class _ComlabScreenState extends State<ComlabScreen> {
         color: Colors.transparent,
         child: FloatingBubble(
           child: GestureDetector(
-            onTap: () {
+            onTap: () async {
+              await playButtonSound();
+
               if (!_hasLives) {
-                _showNoLivesPopup();
+                showNoLivesPopup();
                 return;
               }
 
@@ -393,7 +291,8 @@ class _ComlabScreenState extends State<ComlabScreen> {
                       Row(
                         children: [
                           InkWell(
-                            onTap: () => Navigator.pop(context),
+                            onTap: () =>
+                                onButtonTap(() => Navigator.pop(context)),
                             child: Image.asset(
                               'assets/back_button.png',
                               height: 40,
@@ -401,10 +300,12 @@ class _ComlabScreenState extends State<ComlabScreen> {
                           ),
                           const SizedBox(width: 15),
                           InkWell(
-                            onTap: () => Navigator.popUntil(
-                              context,
-                              (route) => route.isFirst,
-                            ),
+                            onTap: () => onButtonTap(() {
+                              Navigator.popUntil(
+                                context,
+                                (route) => route.isFirst,
+                              );
+                            }),
                             child: Image.asset(
                               'assets/home_button.png',
                               height: 40,
@@ -412,13 +313,13 @@ class _ComlabScreenState extends State<ComlabScreen> {
                           ),
                           const Spacer(),
                           InkWell(
-                            onTap: () {
+                            onTap: () => onButtonTap(() {
                               setState(() {
                                 isQueryVisible = true;
                                 isTableVisible = false;
                                 isQuestionVisible = false;
                               });
-                            },
+                            }),
                             child: Image.asset(
                               'assets/query_button.png',
                               height: 40,
@@ -461,7 +362,7 @@ class _ComlabScreenState extends State<ComlabScreen> {
                       key: ValueKey(activeInvestigationText),
                       text: activeInvestigationText!,
                       onFinished: () async {
-                        await _stopClueSound();
+                        await stopClueSound();
                         setState(() => activeInvestigationText = null);
                       },
                     ),
@@ -502,7 +403,9 @@ class _ComlabScreenState extends State<ComlabScreen> {
                 top: 25,
                 right: 15,
                 child: InkWell(
-                  onTap: () => setState(() => isQuestionVisible = false),
+                  onTap: () => onButtonTap(() {
+                    setState(() => isQuestionVisible = false);
+                  }),
                   child: Image.asset('assets/close_button.png', height: 25),
                 ),
               ),
@@ -558,7 +461,14 @@ class _ComlabScreenState extends State<ComlabScreen> {
                   child: Opacity(
                     opacity: _hasLives ? 1.0 : 0.45,
                     child: InkWell(
-                      onTap: _hasLives ? _submitAnswer : _showNoLivesPopup,
+                      onTap: () async {
+                        await playButtonSound();
+                        if (_hasLives) {
+                          _submitAnswer();
+                        } else {
+                          showNoLivesPopup();
+                        }
+                      },
                       child: Image.asset(
                         'assets/submit_button.png',
                         height: 35,
@@ -590,7 +500,9 @@ class _ComlabScreenState extends State<ComlabScreen> {
                 top: 10,
                 right: 110,
                 child: InkWell(
-                  onTap: () => setState(() => isCorrectVisible = false),
+                  onTap: () => onButtonTap(() {
+                    setState(() => isCorrectVisible = false);
+                  }),
                   child: Image.asset('assets/close_button.png', height: 20),
                 ),
               ),
@@ -617,7 +529,9 @@ class _ComlabScreenState extends State<ComlabScreen> {
                 top: 10,
                 right: 110,
                 child: InkWell(
-                  onTap: () => setState(() => isWrongVisible = false),
+                  onTap: () => onButtonTap(() {
+                    setState(() => isWrongVisible = false);
+                  }),
                   child: Image.asset('assets/close_button.png', height: 20),
                 ),
               ),
@@ -660,7 +574,9 @@ class _ComlabScreenState extends State<ComlabScreen> {
           top: 10,
           right: 20,
           child: InkWell(
-            onTap: () => setState(() => isTableVisible = false),
+            onTap: () => onButtonTap(() {
+              setState(() => isTableVisible = false);
+            }),
             child: Image.asset('assets/close_button.png', height: 25),
           ),
         ),
@@ -761,7 +677,9 @@ class _ComlabScreenState extends State<ComlabScreen> {
           top: 10,
           right: 20,
           child: InkWell(
-            onTap: () => setState(() => isQueryVisible = false),
+            onTap: () => onButtonTap(() {
+              setState(() => isQueryVisible = false);
+            }),
             child: Image.asset('assets/close_button.png', height: 25),
           ),
         ),
@@ -827,28 +745,29 @@ class _ComlabScreenState extends State<ComlabScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               InkWell(
-                onTap: () {
+                onTap: () => onButtonTap(() {
                   setState(() {
                     _filteredLabMaps = List.from(_allLabMaps);
                     _visibleHeaders = List.from(_headers);
                     isTableVisible = true;
                   });
-                },
+                }),
                 child: Image.asset('assets/tables_button.png', height: 35),
               ),
               Row(
                 children: [
                   InkWell(
-                    onTap: () {
-                      setState(() {
-                        _sqlController.clear();
-                      });
-                    },
+                    onTap: () => onButtonTap(() {
+                      _sqlController.clear();
+                    }),
                     child: Image.asset('assets/clear_button.png', height: 35),
                   ),
                   const SizedBox(width: 10),
                   InkWell(
-                    onTap: _runSqlQuery,
+                    onTap: () async {
+                      await playButtonSound();
+                      _runSqlQuery();
+                    },
                     child: Image.asset('assets/run_button.png', height: 35),
                   ),
                 ],
@@ -869,7 +788,8 @@ class _ComlabScreenState extends State<ComlabScreen> {
       child: FloatingBubble(
         child: GestureDetector(
           onTap: () async {
-            await _playClueSound();
+            await playButtonSound();
+            await playClueSound();
 
             setState(() {
               activeInvestigationText = description;
