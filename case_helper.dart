@@ -12,6 +12,16 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
 
   void initCaseHelper() {
     livesManager.addListener(_refreshLives);
+    _configureAudioPlayers();
+  }
+
+  Future<void> _configureAudioPlayers() async {
+    await voicePlayer.setReleaseMode(ReleaseMode.stop);
+    await feedbackPlayer.setReleaseMode(ReleaseMode.stop);
+    await buttonPlayer.setReleaseMode(ReleaseMode.stop);
+
+    await buttonPlayer.setPlayerMode(PlayerMode.lowLatency);
+    await buttonPlayer.setVolume(1.0);
   }
 
   void disposeCaseHelper() {
@@ -45,8 +55,12 @@ mixin CaseScreenHelper<T extends StatefulWidget> on State<T> {
   }
 
   Future<void> playButtonSound() async {
-    await buttonPlayer.stop();
-    await buttonPlayer.play(AssetSource('audio/button.mp3'));
+    try {
+      await buttonPlayer.stop();
+      await buttonPlayer.play(AssetSource('audio/button.mp3'));
+    } catch (e) {
+      debugPrint('Button sound error: $e');
+    }
   }
 
   Future<void> onButtonTap(VoidCallback action) async {
