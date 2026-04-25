@@ -1,0 +1,161 @@
+name: sql_mystery
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.4
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+  audioplayers: ^6.0.0
+  shared_preferences: ^2.2.2
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^6.0.0
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  assets:
+    - assets/select_case.png
+    - assets/folder.png
+    - assets/question.png 
+    - assets/back_button.png
+    - assets/next_button.png
+    - assets/home_button.png
+    - assets/pearl.png
+    - assets/case_bg.png
+    - assets/case_bg1.png
+    - assets/case_board.png
+  # character profiles
+    - assets/character_profile/character_profile1/
+    - assets/character_profile/character_profile2/
+    - assets/character_profile/character_profile3/
+  # gameplay
+    - assets/map1.png
+    - assets/lives.png
+    - assets/lives_counter.png
+    - assets/points.png
+    - assets/notebook.png
+    - assets/exhibition_hall.png
+    - assets/back_alley.png
+    - assets/police_station.png
+    - assets/insurance.png
+    - assets/municipal.png
+    - assets/the_loupe.png
+    - assets/viore_hq.png
+    - assets/query_button.png
+    - assets/asterisk.png
+    - assets/investigate.png
+    - assets/exhibition_hall_loc.png
+    - assets/giovanni_query.png
+    - assets/run_button.png
+    - assets/close_button.png
+    - assets/clear_button.png
+    - assets/tables_button.png
+    - assets/network_logs.png
+    - assets/submit_button.png
+    - assets/giovanni_question.png
+    - assets/correct.png
+    - assets/wrong.png
+    - assets/viore_hq_loc.png
+    - assets/viore_query.png
+    - assets/viore_question.png
+    - assets/intelligence.png
+    - assets/backalley_loc.png
+    - assets/security_cam.png
+    - assets/backalley_query.png
+    - assets/backalley_question.png
+    - assets/insurance_loc.png
+    - assets/insurance_question.png
+    - assets/insurance_table.png
+    - assets/insurance_query.png
+    - assets/loupe_loc.png
+    - assets/loupe_question.png
+    - assets/loupe_query.png
+    - assets/trade_secrets.png
+    - assets/police_loc.png
+    - assets/police_question.png
+    - assets/municipal_loc.png
+    - assets/municipal_query.png
+    - assets/public_records.png
+# Case 2 Assets
+    - assets/Case2/chimera.png
+    - assets/Case2/character_profile1/
+    - assets/Case2/character_profile2/
+    - assets/Case2/character_profile3/
+    - assets/Case2/
+# sound effects
+    - assets/audio/
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/to/resolution-aware-images
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/to/asset-from-package
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  fonts:
+    - family: Luckiest Guy
+      fonts:
+        - asset: assets/fonts/LuckiestGuy-Regular.ttf
+    - family: Londrina Solid
+      fonts:
+        - asset: assets/fonts/LondrinaSolid-Black.ttf
+        - asset: assets/fonts/LondrinaSolid-Light.ttf
+        - asset: assets/fonts/LondrinaSolid-Regular.ttf
+        - asset: assets/fonts/LondrinaSolid-Thin.ttf
+    - family: Consolas
+      fonts:
+        - asset: assets/fonts/consolas.ttf
+
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/to/font-from-package
