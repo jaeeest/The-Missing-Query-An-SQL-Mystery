@@ -130,6 +130,22 @@ flutter:
     - assets/Case2/
 # sound effects
     - assets/audio/
+    #Case 1
+    - assets/audio/case1/backAlley/
+    - assets/audio/case1/giovanni/
+    - assets/audio/case1/loupe/
+    - assets/audio/case1/municipal/
+    - assets/audio/case1/pearlDistrict/
+    - assets/audio/case1/police/
+    - assets/audio/case1/viore/
+    #Case 2
+    - assets/audio/case2/comlab/
+    - assets/audio/case2/dean/
+    - assets/audio/case2/guidance/
+    - assets/audio/case2/gym/
+    - assets/audio/case2/icto/
+    - assets/audio/case2/it/
+    #Case 3
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
