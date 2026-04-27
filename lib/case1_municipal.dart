@@ -209,8 +209,8 @@ class _MunicipalScreenState extends State<MunicipalScreen>
                   'assets/investigate.png',
                   40,
                   "A messy stack of folders containing pending requests.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case1/municipal/1.mp3',
+                  const Duration(seconds: 4),
                 ),
               ),
               Positioned(
@@ -220,8 +220,8 @@ class _MunicipalScreenState extends State<MunicipalScreen>
                   'assets/investigate.png',
                   35,
                   "A box filled with discarded office supplies.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case1/municipal/2.mp3',
+                  const Duration(seconds: 3),
                 ),
               ),
               Positioned(
@@ -231,8 +231,8 @@ class _MunicipalScreenState extends State<MunicipalScreen>
                   'assets/investigate.png',
                   35,
                   "A cork bulletin board pinned with public notices.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case1/municipal/3.mp3',
+                  const Duration(seconds: 3),
                 ),
               ),
               if (activeInvestigationText != null)
@@ -246,6 +246,8 @@ class _MunicipalScreenState extends State<MunicipalScreen>
                           activeTypingDuration ?? const Duration(seconds: 3),
                       onFinished: () async {
                         await stopClueSound();
+                        await Future.delayed(const Duration(seconds: 1));
+                        if (!mounted) return;
                         setState(() {
                           activeInvestigationText = null;
                           activeTypingDuration = null;

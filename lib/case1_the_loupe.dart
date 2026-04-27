@@ -336,8 +336,8 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   40,
                   "A sealed, unmarked envelope filled with money.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case1/loupe/1.mp3',
+                  const Duration(seconds: 3),
                 ),
               ),
               Positioned(
@@ -347,8 +347,8 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   50,
                   "A long wooden shelf lined with bottles.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case1/loupe/2.mp3',
+                  const Duration(seconds: 3),
                 ),
               ),
               Positioned(
@@ -358,8 +358,8 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   35,
                   "A small stage for entertainment.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case1/loupe/3.mp3',
+                  const Duration(seconds: 2),
                 ),
               ),
               if (activeInvestigationText != null)
@@ -373,6 +373,8 @@ class _LoupeScreenState extends State<LoupeScreen> with CaseScreenHelper {
                           activeTypingDuration ?? const Duration(seconds: 3),
                       onFinished: () async {
                         await stopClueSound();
+                        await Future.delayed(const Duration(seconds: 1));
+                        if (!mounted) return;
                         setState(() {
                           activeInvestigationText = null;
                           activeTypingDuration = null;

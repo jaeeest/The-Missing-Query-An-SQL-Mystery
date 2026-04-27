@@ -435,7 +435,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
                   40,
                   "A metal casing protecting the electrical connections that power the streetlights and external security systems.",
                   'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  const Duration(seconds: 7),
                 ),
               ),
               Positioned(
@@ -457,7 +457,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
                   45,
                   "A steel waste container.",
                   'audio/case1/backAlley/3.mp3',
-                  const Duration(seconds: 1),
+                  const Duration(seconds: 2),
                 ),
               ),
               if (activeInvestigationText != null)
@@ -471,6 +471,8 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
                           activeTypingDuration ?? const Duration(seconds: 3),
                       onFinished: () async {
                         await stopClueSound();
+                        await Future.delayed(const Duration(seconds: 1));
+                        if (!mounted) return;
                         setState(() {
                           activeInvestigationText = null;
                           activeTypingDuration = null;

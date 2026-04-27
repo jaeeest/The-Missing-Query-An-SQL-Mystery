@@ -342,8 +342,8 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
                   'assets/investigate.png',
                   35,
                   "A folder containing several financial documents. ",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case1/pearlDistrict/1.mp3',
+                  const Duration(seconds: 3),
                 ),
               ),
               if (activeInvestigationText != null)
@@ -357,6 +357,8 @@ class _PearlDistrictScreenState extends State<PearlDistrictScreen>
                           activeTypingDuration ?? const Duration(seconds: 3),
                       onFinished: () async {
                         await stopClueSound();
+                        await Future.delayed(const Duration(seconds: 1));
+                        if (!mounted) return;
                         setState(() {
                           activeInvestigationText = null;
                           activeTypingDuration = null;

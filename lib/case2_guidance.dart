@@ -228,8 +228,8 @@ class _GuidanceScreenState extends State<GuidanceScreen>
                   'assets/investigate.png',
                   45,
                   "A bulletin board filled with achievements, and organizational updates.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/guidance/1.mp3',
+                  const Duration(seconds: 5),
                 ),
               ),
               Positioned(
@@ -239,8 +239,8 @@ class _GuidanceScreenState extends State<GuidanceScreen>
                   'assets/investigate.png',
                   50,
                   "A row of metal desktop organizers for storing documents.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/guidance/2.mp3',
+                  const Duration(seconds: 4),
                 ),
               ),
               if (activeInvestigationText != null)
@@ -254,6 +254,8 @@ class _GuidanceScreenState extends State<GuidanceScreen>
                           activeTypingDuration ?? const Duration(seconds: 3),
                       onFinished: () async {
                         await stopClueSound();
+                        await Future.delayed(const Duration(seconds: 1));
+                        if (!mounted) return;
                         setState(() {
                           activeInvestigationText = null;
                           activeTypingDuration = null;

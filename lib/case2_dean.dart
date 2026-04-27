@@ -346,8 +346,8 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   30,
                   "A dark motivational poster.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/dean/1.mp3',
+                  const Duration(seconds: 3),
                 ),
               ),
               Positioned(
@@ -357,8 +357,8 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   30,
                   "A collection of small, colorful magnets attached to a mini fridge.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/dean/2.mp3',
+                  const Duration(seconds: 4),
                 ),
               ),
               Positioned(
@@ -368,8 +368,8 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   40,
                   "Several framed certificates and plaques showing academic achievements.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/dean/3.mp3',
+                  const Duration(seconds: 5),
                 ),
               ),
               Positioned(
@@ -379,8 +379,8 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   35,
                   "A green blazer draped over the back of the desk chair.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/dean/4.mp3',
+                  const Duration(seconds: 3),
                 ),
               ),
               if (activeInvestigationText != null)
@@ -394,6 +394,8 @@ class _DeanScreenState extends State<DeanScreen> with CaseScreenHelper {
                           activeTypingDuration ?? const Duration(seconds: 3),
                       onFinished: () async {
                         await stopClueSound();
+                        await Future.delayed(const Duration(seconds: 1));
+                        if (!mounted) return;
                         setState(() {
                           activeInvestigationText = null;
                           activeTypingDuration = null;

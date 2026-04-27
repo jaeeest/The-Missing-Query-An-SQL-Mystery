@@ -420,8 +420,8 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen>
                   'assets/investigate.png',
                   50,
                   "A broken CCTV camera.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case1/giovanni/1.mp3',
+                  const Duration(seconds: 3),
                 ),
               ),
               Positioned(
@@ -431,8 +431,8 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen>
                   'assets/investigate.png',
                   50,
                   "A reinforced glass pedestal that once held the Pearl of the Orient Sea.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case1/giovanni/2.mp3',
+                  const Duration(seconds: 5),
                 ),
               ),
               Positioned(
@@ -442,8 +442,8 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen>
                   'assets/investigate.png',
                   45,
                   "A digital keypad that requires admin privileges to disarm.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case1/giovanni/3.mp3',
+                  const Duration(seconds: 4),
                 ),
               ),
               Positioned(
@@ -452,9 +452,9 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen>
                 child: _buildOverlayIcon(
                   'assets/investigate.png',
                   50,
-                  "Dusty footprints leading to the glass pedestal.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  "A faint, dusty footprint.",
+                  'audio/case1/giovanni/4.mp3',
+                  const Duration(seconds: 2),
                 ),
               ),
               if (activeInvestigationText != null)
@@ -468,6 +468,8 @@ class _ExhibitionHallScreenState extends State<ExhibitionHallScreen>
                           activeTypingDuration ?? const Duration(seconds: 3),
                       onFinished: () async {
                         await stopClueSound();
+                        await Future.delayed(const Duration(seconds: 1));
+                        if (!mounted) return;
                         setState(() {
                           activeInvestigationText = null;
                           activeTypingDuration = null;

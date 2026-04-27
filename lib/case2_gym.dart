@@ -475,8 +475,8 @@ class _GymScreenState extends State<GymScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   30,
                   "A slightly faded poster outlining use etiquette and safety guidelines.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/gym/1.mp3',
+                  const Duration(seconds: 5),
                 ),
               ),
               Positioned(
@@ -486,8 +486,8 @@ class _GymScreenState extends State<GymScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   40,
                   "Shelves with various training gear.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/gym/2.mp3',
+                  const Duration(seconds: 2),
                 ),
               ),
               Positioned(
@@ -497,8 +497,8 @@ class _GymScreenState extends State<GymScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   40,
                   "A heavy metal door leading outside the Gym Storeroom.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/gym/3.mp3',
+                  const Duration(seconds: 4),
                 ),
               ),
               if (activeInvestigationText != null)
@@ -512,6 +512,8 @@ class _GymScreenState extends State<GymScreen> with CaseScreenHelper {
                           activeTypingDuration ?? const Duration(seconds: 3),
                       onFinished: () async {
                         await stopClueSound();
+                        await Future.delayed(const Duration(seconds: 1));
+                        if (!mounted) return;
                         setState(() {
                           activeInvestigationText = null;
                           activeTypingDuration = null;

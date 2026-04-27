@@ -344,8 +344,8 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   30,
                   "A small numeric keypad mounted beside the instructor’s computer.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/comlab/1.mp3',
+                  const Duration(seconds: 4),
                 ),
               ),
               Positioned(
@@ -355,8 +355,8 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   40,
                   "Several devices covered in plastic wraps to protect them from the dust.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/comlab/2.mp3',
+                  const Duration(seconds: 5),
                 ),
               ),
               if (activeInvestigationText != null)
@@ -370,6 +370,8 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
                           activeTypingDuration ?? const Duration(seconds: 3),
                       onFinished: () async {
                         await stopClueSound();
+                        await Future.delayed(const Duration(seconds: 1));
+                        if (!mounted) return;
                         setState(() {
                           activeInvestigationText = null;
                           activeTypingDuration = null;

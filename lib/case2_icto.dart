@@ -532,8 +532,8 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   30,
                   "A small office signage.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/icto/1.mp3',
+                  const Duration(seconds: 2),
                 ),
               ),
               Positioned(
@@ -543,8 +543,8 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   40,
                   "A complex cluster of gray-colored network cables.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/icto/2.mp3',
+                  const Duration(seconds: 4),
                 ),
               ),
               Positioned(
@@ -554,8 +554,8 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   40,
                   "A technical hardware rack containing network devices.",
-                  'audio/voice_over.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/icto/3.mp3',
+                  const Duration(seconds: 4),
                 ),
               ),
               if (activeInvestigationText != null)
@@ -569,6 +569,8 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
                           activeTypingDuration ?? const Duration(seconds: 3),
                       onFinished: () async {
                         await stopClueSound();
+                        await Future.delayed(const Duration(seconds: 1));
+                        if (!mounted) return;
                         setState(() {
                           activeInvestigationText = null;
                           activeTypingDuration = null;

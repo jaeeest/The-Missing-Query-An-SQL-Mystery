@@ -230,8 +230,8 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
                   'assets/investigate.png',
                   45,
                   "A wall-mounted display system.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case1/police/1.mp3',
+                  const Duration(seconds: 2),
                 ),
               ),
               Positioned(
@@ -241,8 +241,8 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
                   'assets/investigate.png',
                   50,
                   "A bulletin board filled with suspect files and case leads.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case1/police/2.mp3',
+                  const Duration(seconds: 5),
                 ),
               ),
               if (activeInvestigationText != null)
@@ -256,6 +256,8 @@ class _PoliceStationScreenState extends State<PoliceStationScreen>
                           activeTypingDuration ?? const Duration(seconds: 3),
                       onFinished: () async {
                         await stopClueSound();
+                        await Future.delayed(const Duration(seconds: 1));
+                        if (!mounted) return;
                         setState(() {
                           activeInvestigationText = null;
                           activeTypingDuration = null;

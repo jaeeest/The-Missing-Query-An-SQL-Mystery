@@ -340,7 +340,7 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   30,
                   "A worn leather-bound journal. Its edges are slightly frayed from frequent use.",
-                  'audio/case1/backAlley/1.mp3',
+                  'audio/case2/it/1.mp3',
                   const Duration(seconds: 6),
                 ),
               ),
@@ -351,8 +351,8 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   40,
                   "A small framed signage.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/it/2.mp3',
+                  const Duration(seconds: 2),
                 ),
               ),
               Positioned(
@@ -362,8 +362,8 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
                   'assets/investigate.png',
                   40,
                   "A long coat draped over the back of an office chair.",
-                  'audio/case1/backAlley/1.mp3',
-                  const Duration(seconds: 6),
+                  'audio/case2/it/3.mp3',
+                  const Duration(seconds: 3),
                 ),
               ),
               if (activeInvestigationText != null)
@@ -377,6 +377,8 @@ class _ITScreenState extends State<ITScreen> with CaseScreenHelper {
                           activeTypingDuration ?? const Duration(seconds: 3),
                       onFinished: () async {
                         await stopClueSound();
+                        await Future.delayed(const Duration(seconds: 1));
+                        if (!mounted) return;
                         setState(() {
                           activeInvestigationText = null;
                           activeTypingDuration = null;
