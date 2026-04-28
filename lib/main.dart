@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:sql_mystery/page_transition.dart';
 import 'case1_description.dart';
 import 'case2_description.dart';
+import 'case3_description.dart';
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -103,10 +105,19 @@ class CaseSelectionScreen extends StatelessWidget {
                           isLocked: false,
                         ),
                       ),
-                      const CaseFolder(
-                        caseTitle: "CASE FILE 03:\n???",
-                        isLocked: true,
-                      ),
+                      
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            slideRoute(const CaseDescription3()),
+                          );
+                        },
+                        child: const CaseFolder(
+                          caseTitle: "CASE FILE 03:\n9-1-1",
+                          isLocked: false,
+                        ),
+                      )
                     ],
                   ),
                 ),
