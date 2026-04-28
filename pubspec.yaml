@@ -122,12 +122,20 @@ flutter:
     - assets/municipal_loc.png
     - assets/municipal_query.png
     - assets/public_records.png
-# Case 2 Assets
+  # Case 2 Assets
     - assets/Case2/chimera.png
     - assets/Case2/character_profile1/
     - assets/Case2/character_profile2/
     - assets/Case2/character_profile3/
     - assets/Case2/
+  # Case 3 Assets
+    - assets/Case3/
+    - assets/Case3/character_profile1/
+    - assets/Case3/character_profile2/
+    - assets/Case3/character_profile3/
+    - assets/Case3/character_profile4/
+    - assets/Case3/character_profile5/
+
 # sound effects
     - assets/audio/
     #Case 1
@@ -146,6 +154,16 @@ flutter:
     - assets/audio/case2/icto/
     - assets/audio/case2/it/
     #Case 3
+    - assets/audio/case3/bank/
+    - assets/audio/case3/cell/
+    - assets/audio/case3/cityPolice/
+    - assets/audio/case3/cordova/
+    - assets/audio/case3/hospital/
+    - assets/audio/case3/huang/
+    - assets/audio/case3/logistics/
+    - assets/audio/case3/lowe/
+    - assets/audio/case3/skyline/
+    - assets/audio/case3/wasteCorp/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
