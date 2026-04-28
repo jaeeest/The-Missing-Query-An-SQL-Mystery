@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'case2_map.dart';
 import 'page_transition.dart';
 import 'case_helper.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 // --- TYPEWRITER TEXT ---
 class TypewriterText extends StatefulWidget {
@@ -27,6 +28,7 @@ class TypewriterText extends StatefulWidget {
 class _TypewriterTextState extends State<TypewriterText> {
   String _displayedText = "";
   Timer? _timer;
+  final AudioPlayer _typePlayer = AudioPlayer();
 
   @override
   void initState() {
@@ -44,24 +46,44 @@ class _TypewriterTextState extends State<TypewriterText> {
 
   void _startAnimation() {
     _timer?.cancel();
-    _displayedText = "";
+
+    setState(() {
+      _displayedText = "";
+    });
+
     int index = 0;
 
+    _typePlayer.stop();
+    _typePlayer.setReleaseMode(ReleaseMode.loop);
+    _typePlayer.play(AssetSource('audio/typing.mp3'), volume: 0.25);
+
     _timer = Timer.periodic(widget.speed, (timer) {
-      if (index < widget.text.length) {
-        setState(() {
-          _displayedText += widget.text[index];
-          index++;
-        });
-      } else {
-        _timer?.cancel();
+      if (!mounted) {
+        timer.cancel();
+        _typePlayer.stop();
+        return;
       }
+
+      if (index >= widget.text.length) {
+        timer.cancel();
+        _typePlayer.stop();
+        _typePlayer.setReleaseMode(ReleaseMode.release);
+        return;
+      }
+
+      setState(() {
+        _displayedText += widget.text[index];
+      });
+
+      index++;
     });
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _typePlayer.stop();
+    _typePlayer.dispose();
     super.dispose();
   }
 
