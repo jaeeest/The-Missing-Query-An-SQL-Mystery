@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'simple_sql_engine.dart';
 import 'case_helper.dart';
 
-class BankScreen extends StatefulWidget {
-  const BankScreen({super.key});
+class HospitalScreen extends StatefulWidget {
+  const HospitalScreen({super.key});
 
   @override
-  State<BankScreen> createState() => _BankScreenState();
+  State<HospitalScreen> createState() => _HospitalScreenState();
 }
 
-class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
+class _HospitalScreenState extends State<HospitalScreen> with CaseScreenHelper {
   bool isQueryVisible = false;
   bool isTableVisible = false;
   bool isQuestionVisible = false;
@@ -27,39 +27,39 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
   final ScrollController _sqlScrollController = ScrollController();
 
   final List<String> _headers = const [
-    'trans_id',
-    'recipient_name',
-    'amount',
-    'sender_name',
-    'source',
+    'patient_name',
+    'organ_type',
+    'donor_code',
+    'blood_type',
+    'surgery_time',
   ];
 
-  final List<List<String>> _transactionLedger = [
-    ['TXN-4001', 'Rosie Cordova', '120', 'Floral Shop', 'Local_Pay'],
-    ['TXN-4002', 'James Miller', '4500', 'Tech_Corp', 'Payroll'],
-    ['TXN-4003', 'Mark Lowe', '12000', 'Global_Biz_Inc', 'Wire_Transfer'],
-    ['TXN-4004', 'Elena Cruz', '850', 'Retail_Sales', 'Direct_Deposit'],
-    ['TXN-4005', 'City Utility', '315.2', 'Virginia Lowe', 'Auto_Debit'],
-    ['TXN-4006', 'Marcus Thorne', '2500', 'City_Police', 'Payroll'],
-    ['TXN-4007', 'Skyline Airlines', '1200', 'Mark Lowe', 'Credit_Card'],
-    ['TXN-4008', 'Jose De Leon', '1850', 'City_Waste', 'Payroll'],
-    ['TXN-4009', 'Ethan Serrano', '50000', 'HUANG', 'Offshore_Cayman'],
-    ['TXN-4010', 'Rosie Cordova', '25', 'Ethan Serrano', 'P2P_Transfer'],
-    ['TXN-4011', 'Central Hospital', '75000', 'Aron Huang', 'Private_Fund'],
-    ['TXN-4012', 'Thomas Shelby', '10000', 'Unknown_Source', 'Crypto_Wallet'],
-    ['TXN-4013', 'Mark Lowe', '200', 'Gas_Station', 'Credit_Card'],
-    ['TXN-4014', 'Jose De Leon', '15000', 'HUANG', 'Encrypted_Node'],
-    ['TXN-4015', 'Rosie Cordova', '15000', 'Jewelry_Exch', 'Credit_Refund'],
-    ['TXN-4016', 'Benedict Huang', '500', 'Aron Huang', 'Allowance'],
-    ['TXN-4017', 'Mark Lowe', '5000', 'Legal_Shield_LLC', 'Retainer_Fee'],
-    ['TXN-4018', 'Loyd Shaw', '1200', 'Mark Lowe', 'Monthly_Stipend'],
-    ['TXN-4019', 'Ethan Serrano', '1200', 'Delivery_Hub', 'Gig_Income'],
-    ['TXN-4020', 'HUANG', '150000', 'Mark Lowe', 'Escrow_Payment'],
-    ['TXN-4021', 'Rosie Cordova', '400', 'Landlord_Inc', 'Rent_Payment'],
-    ['TXN-4022', 'Central Hospital', '5000', 'Insurance_Group', 'Claim_Payout'],
-    ['TXN-4023', 'Jose De Leon', '150', 'Local_Diner', 'Debit_Card'],
-    ['TXN-4024', 'Ethan Serrano', '30000', 'Medical_Savings', 'Withdrawal'],
-    ['TXN-4025', 'Aron Huang', '1000000', 'Huang_Corp_Main', 'Dividend'],
+  final List<List<String>> _transplantMetadata = [
+    ['Javier Woodard', 'Cornea', 'D-401', 'A+', '2026-04-10 9:00'],
+    ['Caleb Singh', 'Kidney', 'D-202', 'O+', '2026-04-11 11:30'],
+    ['Wilma Munoz', 'Liver', 'D-881', 'B+', '2026-04-12 8:15'],
+    ['Rocco Huynh', 'Heart', 'D-110', 'AB-', '2026-04-13 14:00'],
+    ['Cecelia Foley', 'Kidney', 'D-205', 'A-', '2026-04-14 10:45'],
+    ['Arthur Robles', 'Bone Marrow', 'D-009', 'O-', '2026-04-15 7:30'],
+    ['Olivia Pope', 'Pancreas', 'D-332', 'B-', '2026-04-16 13:20'],
+    ['Ramona Solomon', 'Cornea', 'D-405', 'A+', '2026-04-17 15:50'],
+    ['Thomas Shelby', 'Liver', 'D-885', 'O+', '2026-04-18 6:10'],
+    ['Benedict Huang', 'Kidney', 'ES-DONOR', 'B-', '2026-04-21 2:00'],
+    ['Peter Parker', 'Kidney', 'D-210', 'A+', '2026-04-21 4:30'],
+    ['Bruce Wayne', 'Heart', 'D-115', 'O-', '2026-04-21 6:00'],
+    ['Clark Kent', 'Liver', 'D-890', 'AB+', '2026-04-21 8:20'],
+    ['Diana Prince', 'Bone Marrow', 'D-012', 'B+', '2026-04-21 10:15'],
+    ['Barry Allen', 'Pancreas', 'D-335', 'O+', '2026-04-21 12:40'],
+    ['Arthur Curry', 'Kidney', 'D-212', 'A-', '2026-04-21 14:55'],
+    ['Victor Stone', 'Cornea', 'D-408', 'B-', '2026-04-21 17:10'],
+    ['Hal Jordan', 'Liver', 'D-895', 'O-', '2026-04-21 19:30'],
+    ['John Stewart', 'Heart', 'D-120', 'AB-', '2026-04-21 21:45'],
+    ['Loyd Shaw', 'Multiple', 'TOTAL_HARVEST', 'B-', '2026-04-20 23:30'],
+    ['Pat Meadows', 'Heart', 'D-125', 'A+', '2026-04-22 1:15'],
+    ['Steve Rogers', 'Kidney', 'D-215', 'O+', '2026-04-22 3:40'],
+    ['Natasha Romanoff', 'Liver', 'D-899', 'B+', '2026-04-22 5:55'],
+    ['Kirsten Knox', 'Pancreas', 'D-340', 'A-', '2026-04-22 8:20'],
+    ['Dana Goodman', 'Cornea', 'D-412', 'AB+', '2026-04-22 10:45'],
   ];
 
   late final SimpleSqlEngine _sqlEngine;
@@ -73,21 +73,21 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
 
     initCaseHelper();
 
-    _allLedgerMaps = _transactionLedger.map((row) {
+    _allLedgerMaps = _transplantMetadata.map((row) {
       return {
-        'trans_id': row[0],
-        'recipient_name': row[1],
-        'amount': row[2],
-        'sender_name': row[3],
-        'source': row[4],
+        'patient_name': row[0],
+        'organ_type': row[1],
+        'donor_code': row[2],
+        'blood_type': row[3],
+        'surgery_time': row[4],
       };
     }).toList();
 
     _sqlEngine = SimpleSqlEngine(
-      tableName: 'transaction_ledger',
+      tableName: 'transplant_metadata',
       headers: _headers,
       rows: _allLedgerMaps,
-      numericColumns: const {'amount'},
+      numericColumns: const {},
     );
 
     _filteredLedgerMaps = List.from(_allLedgerMaps);
@@ -124,15 +124,15 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
         .replaceAll(',', '');
   }
 
-  bool _isBankCorrectAnswer(String input) {
+  bool _isHospitalCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
 
     const acceptedAnswers = {
-      'ETHAN SERRANO JOSE DE LEON 65000',
-      'ETHAN SERRANO, JOSE DE LEON, 65000',
-      'HUANG ETHAN SERRANO JOSE DE LEON 65000',
-      'HUANG, ETHAN SERRANO, JOSE DE LEON, 65000',
-      '65000',
+      'BENEDICT HUANG LOYD SHAW',
+      'BENEDICT HUANG, LOYD SHAW',
+      'BENEDICT HUANG AND LOYD SHAW',
+      'BENEDICT HUANG LOYD SHAW TOTAL HARVEST',
+      'BENEDICT HUANG TOTAL HARVEST LOYD SHAW',
     };
 
     return acceptedAnswers.contains(normalized);
@@ -147,7 +147,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
       return;
     }
 
-    if (_isBankCorrectAnswer(_answerController.text)) {
+    if (_isHospitalCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
       setState(() {
         isQuestionVisible = false;
@@ -289,7 +289,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
             children: [
               Positioned.fill(
                 child: Image.asset(
-                  'assets/Case3/bank_loc.png',
+                  'assets/Case3/hospital_loc.png',
                   fit: BoxFit.fill,
                 ),
               ),
@@ -345,41 +345,30 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.56,
-                left: constraints.maxWidth * 0.33,
-                child: _buildAsteriskIcon(40),
+                top: constraints.maxHeight * 0.35,
+                left: constraints.maxWidth * 0.56,
+                child: _buildAsteriskIcon(35),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.42,
-                left: constraints.maxWidth * 0.12,
+                top: constraints.maxHeight * 0.30,
+                left: constraints.maxWidth * 0.81,
                 child: _buildOverlayIcon(
                   'assets/investigate.png',
-                  30,
-                  "Several flat-screen monitors displaying bank and financial data.",
-                  'audio/case3/bank/1.mp3',
-                  const Duration(seconds: 5),
-                ),
-              ),
-              Positioned(
-                top: constraints.maxHeight * 0.46,
-                left: constraints.maxWidth * 0.59,
-                child: _buildOverlayIcon(
-                  'assets/investigate.png',
-                  30,
-                  "A row of dark wood teller stations.",
-                  'audio/case3/bank/2.mp3',
+                  50,
+                  "An open doorway that leads to a clinical room.",
+                  'audio/case3/hospital/1.mp3',
                   const Duration(seconds: 3),
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.40,
-                left: constraints.maxWidth * 0.93,
+                top: constraints.maxHeight * 0.26,
+                left: constraints.maxWidth * 0.20,
                 child: _buildOverlayIcon(
                   'assets/investigate.png',
-                  40,
-                  "A private office enclosed by glass partitions.",
-                  'audio/case3/bank/3.mp3',
-                  const Duration(seconds: 4),
+                  35,
+                  "Double doors that lead to a surgical area.",
+                  'audio/case3/hospital/2.mp3',
+                  const Duration(seconds: 3),
                 ),
               ),
               if (activeInvestigationText != null)
@@ -430,7 +419,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
             children: [
               Positioned.fill(
                 child: Image.asset(
-                  'assets/Case3/bank_question.png',
+                  'assets/Case3/hospital_question.png',
                   fit: BoxFit.fill,
                 ),
               ),
@@ -445,15 +434,15 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.22,
+                top: constraints.maxHeight * 0.23,
                 left: constraints.maxWidth * 0.08,
                 right: constraints.maxWidth * 0.08,
                 child: const Text(
-                  "Identify the large payment made by Mark Lowe to an offshore entity on the day of the crime. Then, find the two subsequent payments made by that same entity to Ethan Serrano and Jose De Leon. What was the total Blood Money distributed by the Syndicate?",
+                  "Filter the transplant logs for B- blood types. Who received an organ, and who was listed as the Total Harvest donor?",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Consolas',
-                    fontSize: 12,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: Colors.blueGrey,
                   ),
@@ -597,13 +586,13 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
       fontFamily: 'Consolas',
       color: Colors.red,
       fontWeight: FontWeight.bold,
-      fontSize: 13,
+      fontSize: 12,
     );
 
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/Case3/transaction_ledger.png', fit: BoxFit.fill),
+          child: Image.asset('assets/Case3/transplant_metadata.png', fit: BoxFit.fill),
         ),
         Positioned(
           top: 20,
@@ -658,20 +647,20 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
 
   int _flexForHeader(String header) {
   switch (header) {
-    case 'trans_id':
+    case 'patient_name':
       return 3;
-    case 'recipient_name':
+    case 'organ_type':
       return 3;
-    case 'amount':
-      return 3;
-    case 'sender_name':
-      return 3;
-    case 'source':
+    case 'donor_code':
+      return 4;
+    case 'blood_type':
+      return 2;
+    case 'surgery_time':
       return 4;
     default:
       return 3;
   }
-  }
+}
 
   List<TableRow> _buildTableRowsList() {
     const cellStyle = TextStyle(
@@ -712,7 +701,10 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/Case3/bank_query.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/Case3/hospital_query.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 10,

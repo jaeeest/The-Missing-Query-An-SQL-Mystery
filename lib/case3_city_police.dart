@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 import 'simple_sql_engine.dart';
 import 'case_helper.dart';
 
-class BankScreen extends StatefulWidget {
-  const BankScreen({super.key});
+class CityPoliceScreen extends StatefulWidget {
+  const CityPoliceScreen({super.key});
 
   @override
-  State<BankScreen> createState() => _BankScreenState();
+  State<CityPoliceScreen> createState() => _CityPoliceScreenState();
 }
 
-class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
+class _CityPoliceScreenState extends State<CityPoliceScreen>
+    with CaseScreenHelper {
   bool isQueryVisible = false;
   bool isTableVisible = false;
   bool isQuestionVisible = false;
@@ -27,39 +28,189 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
   final ScrollController _sqlScrollController = ScrollController();
 
   final List<String> _headers = const [
-    'trans_id',
-    'recipient_name',
-    'amount',
-    'sender_name',
-    'source',
+    'report_id',
+    'call_time',
+    'location',
+    'caller',
+    'summary',
   ];
 
-  final List<List<String>> _transactionLedger = [
-    ['TXN-4001', 'Rosie Cordova', '120', 'Floral Shop', 'Local_Pay'],
-    ['TXN-4002', 'James Miller', '4500', 'Tech_Corp', 'Payroll'],
-    ['TXN-4003', 'Mark Lowe', '12000', 'Global_Biz_Inc', 'Wire_Transfer'],
-    ['TXN-4004', 'Elena Cruz', '850', 'Retail_Sales', 'Direct_Deposit'],
-    ['TXN-4005', 'City Utility', '315.2', 'Virginia Lowe', 'Auto_Debit'],
-    ['TXN-4006', 'Marcus Thorne', '2500', 'City_Police', 'Payroll'],
-    ['TXN-4007', 'Skyline Airlines', '1200', 'Mark Lowe', 'Credit_Card'],
-    ['TXN-4008', 'Jose De Leon', '1850', 'City_Waste', 'Payroll'],
-    ['TXN-4009', 'Ethan Serrano', '50000', 'HUANG', 'Offshore_Cayman'],
-    ['TXN-4010', 'Rosie Cordova', '25', 'Ethan Serrano', 'P2P_Transfer'],
-    ['TXN-4011', 'Central Hospital', '75000', 'Aron Huang', 'Private_Fund'],
-    ['TXN-4012', 'Thomas Shelby', '10000', 'Unknown_Source', 'Crypto_Wallet'],
-    ['TXN-4013', 'Mark Lowe', '200', 'Gas_Station', 'Credit_Card'],
-    ['TXN-4014', 'Jose De Leon', '15000', 'HUANG', 'Encrypted_Node'],
-    ['TXN-4015', 'Rosie Cordova', '15000', 'Jewelry_Exch', 'Credit_Refund'],
-    ['TXN-4016', 'Benedict Huang', '500', 'Aron Huang', 'Allowance'],
-    ['TXN-4017', 'Mark Lowe', '5000', 'Legal_Shield_LLC', 'Retainer_Fee'],
-    ['TXN-4018', 'Loyd Shaw', '1200', 'Mark Lowe', 'Monthly_Stipend'],
-    ['TXN-4019', 'Ethan Serrano', '1200', 'Delivery_Hub', 'Gig_Income'],
-    ['TXN-4020', 'HUANG', '150000', 'Mark Lowe', 'Escrow_Payment'],
-    ['TXN-4021', 'Rosie Cordova', '400', 'Landlord_Inc', 'Rent_Payment'],
-    ['TXN-4022', 'Central Hospital', '5000', 'Insurance_Group', 'Claim_Payout'],
-    ['TXN-4023', 'Jose De Leon', '150', 'Local_Diner', 'Debit_Card'],
-    ['TXN-4024', 'Ethan Serrano', '30000', 'Medical_Savings', 'Withdrawal'],
-    ['TXN-4025', 'Aron Huang', '1000000', 'Huang_Corp_Main', 'Dividend'],
+  final List<List<String>> _incidentReports = [
+    [
+      'R-1001',
+      '8:15',
+      'North Ward',
+      'Anon',
+      'Stray dog seen near the elementary school.',
+    ],
+    [
+      'R-1002',
+      '9:00',
+      'East Ward',
+      'Sarah K.',
+      'Minor fender bender on Main St. No injuries.',
+    ],
+    [
+      'R-1003',
+      '9:45',
+      'South Ward',
+      'P. Higgins',
+      'Noise complaint: construction started too early.',
+    ],
+    [
+      'R-1004',
+      '10:20',
+      'Market Dist',
+      'J. Smith',
+      'Shoplifting reported at the local grocery.',
+    ],
+    [
+      'R-1005',
+      '11:10',
+      'West Ward',
+      'L. Miller',
+      'Water main break on 4th Avenue.',
+    ],
+    [
+      'R-1006',
+      '11:45',
+      'Industrial',
+      'Security',
+      'Alarm triggered at Warehouse 4. False alarm.',
+    ],
+    [
+      'R-1007',
+      '12:30',
+      'South Ward',
+      'T. Vance',
+      'Lost cat reported near the park.',
+    ],
+    [
+      'R-1008',
+      '13:05',
+      'North Ward',
+      'B. White',
+      'Suspicious vehicle parked near the bank.',
+    ],
+    [
+      'R-1009',
+      '13:40',
+      'East Ward',
+      'Anon',
+      'Kids playing with firecrackers in the alley.',
+    ],
+    [
+      'R-1010',
+      '14:14',
+      'South Ward',
+      'Neighbor',
+      'Loud shouting and glass breaking at Lowe Residence.',
+    ],
+    [
+      'R-1011',
+      '14:17',
+      'Industrial',
+      'De Leon',
+      'Human remains found on Waste Management conveyor.',
+    ],
+    [
+      'R-1012',
+      '14:22',
+      'Market Dist',
+      'M. Ross',
+      'Illegal parking blocking a fire hydrant.',
+    ],
+    [
+      'R-1013',
+      '14:35',
+      'South Ward',
+      'Dispatch',
+      'Emergency: Officer Johnson not responding to radio.',
+    ],
+    [
+      'R-1014',
+      '14:45',
+      'South Ward',
+      'Witness',
+      'Shots fired; Officer down at the Lowe Residence.',
+    ],
+    [
+      'R-1015',
+      '15:00',
+      'East Ward',
+      'Hospital',
+      'Requesting escort for high-priority VIP transport.',
+    ],
+    [
+      'R-1016',
+      '15:30',
+      'Industrial',
+      'J. De Leon',
+      'Follow-up: Plant operations halted for forensics.',
+    ],
+    [
+      'R-1017',
+      '16:00',
+      'North Ward',
+      'G. Baker',
+      'Vandalism reported at the park fountain.',
+    ],
+    [
+      'R-1018',
+      '16:15',
+      'Market Dist',
+      'Rosie C.',
+      'Reporting a suspicious person near the flower shop.',
+    ],
+    [
+      'R-1019',
+      '16:45',
+      'West Ward',
+      'Anon',
+      'Smell of gas reported near the residential block.',
+    ],
+    [
+      'R-1020',
+      '17:10',
+      'South Ward',
+      'Mark Lowe',
+      'Wellness check request for wife.',
+    ],
+    [
+      'R-1021',
+      '17:30',
+      'North Ward',
+      'K. Lee',
+      'Package theft caught on porch camera.',
+    ],
+    [
+      'R-1022',
+      '18:00',
+      'Market Dist',
+      'Ethan S.',
+      'Reporting a lost wallet near the delivery hub.',
+    ],
+    [
+      'R-1023',
+      '18:45',
+      'Industrial',
+      'Security',
+      'Heavy cargo truck entering Huang Logistics after hours.',
+    ],
+    [
+      'R-1024',
+      '19:20',
+      'East Ward',
+      'P. Thompson',
+      'Streetlight out on 7th and Oak.',
+    ],
+    [
+      'R-1025',
+      '20:00',
+      'South Ward',
+      'Forensic',
+      'Crime scene cleared; evidence transport to HQ.',
+    ],
   ];
 
   late final SimpleSqlEngine _sqlEngine;
@@ -73,21 +224,21 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
 
     initCaseHelper();
 
-    _allLedgerMaps = _transactionLedger.map((row) {
+    _allLedgerMaps = _incidentReports.map((row) {
       return {
-        'trans_id': row[0],
-        'recipient_name': row[1],
-        'amount': row[2],
-        'sender_name': row[3],
-        'source': row[4],
+        'report_id': row[0],
+        'call_time': row[1],
+        'location': row[2],
+        'caller': row[3],
+        'summary': row[4],
       };
     }).toList();
 
     _sqlEngine = SimpleSqlEngine(
-      tableName: 'transaction_ledger',
+      tableName: 'incident_reports',
       headers: _headers,
       rows: _allLedgerMaps,
-      numericColumns: const {'amount'},
+      numericColumns: const {},
     );
 
     _filteredLedgerMaps = List.from(_allLedgerMaps);
@@ -124,15 +275,16 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
         .replaceAll(',', '');
   }
 
-  bool _isBankCorrectAnswer(String input) {
+  bool _isCityPoliceCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
 
     const acceptedAnswers = {
-      'ETHAN SERRANO JOSE DE LEON 65000',
-      'ETHAN SERRANO, JOSE DE LEON, 65000',
-      'HUANG ETHAN SERRANO JOSE DE LEON 65000',
-      'HUANG, ETHAN SERRANO, JOSE DE LEON, 65000',
-      '65000',
+      'ARON HUANG MARK LOWE JOSE DE LEON',
+      'ARON HUANG, MARK LOWE, JOSE DE LEON',
+      'ARON HUANG MARK LOWE AND JOSE DE LEON',
+      'ARON HUANG, MARK LOWE, AND JOSE DE LEON',
+      'MASTERMINDS ARON HUANG KILLER MARK LOWE ENFORCER JOSE DE LEON',
+      'MASTERMIND ARON HUANG KILLER MARK LOWE ENFORCER JOSE DE LEON',
     };
 
     return acceptedAnswers.contains(normalized);
@@ -147,7 +299,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
       return;
     }
 
-    if (_isBankCorrectAnswer(_answerController.text)) {
+    if (_isCityPoliceCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
       setState(() {
         isQuestionVisible = false;
@@ -289,7 +441,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
             children: [
               Positioned.fill(
                 child: Image.asset(
-                  'assets/Case3/bank_loc.png',
+                  'assets/Case3/city_police_loc.png',
                   fit: BoxFit.fill,
                 ),
               ),
@@ -345,41 +497,52 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.56,
-                left: constraints.maxWidth * 0.33,
+                top: constraints.maxHeight * 0.49,
+                left: constraints.maxWidth * 0.87,
                 child: _buildAsteriskIcon(40),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.42,
-                left: constraints.maxWidth * 0.12,
+                top: constraints.maxHeight * 0.62,
+                left: constraints.maxWidth * 0.63,
                 child: _buildOverlayIcon(
                   'assets/investigate.png',
-                  30,
-                  "Several flat-screen monitors displaying bank and financial data.",
-                  'audio/case3/bank/1.mp3',
+                  35,
+                  "An open pink cardboard box containing several frosted donuts.",
+                  'audio/case3/cityPolice/1.mp3',
                   const Duration(seconds: 5),
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.46,
-                left: constraints.maxWidth * 0.59,
+                top: constraints.maxHeight * 0.62,
+                left: constraints.maxWidth * 0.43,
                 child: _buildOverlayIcon(
                   'assets/investigate.png',
                   30,
-                  "A row of dark wood teller stations.",
-                  'audio/case3/bank/2.mp3',
+                  "A black corded office telephone.",
+                  'audio/case3/cityPolice/2.mp3',
                   const Duration(seconds: 3),
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.40,
-                left: constraints.maxWidth * 0.93,
+                top: constraints.maxHeight * 0.50,
+                left: constraints.maxWidth * 0.39,
+                child: _buildOverlayIcon(
+                  'assets/investigate.png',
+                  30,
+                  "A computer monitor showing FRQ. 100 signal graphic.",
+                  'audio/case3/cityPolice/3.mp3',
+                  const Duration(seconds: 5),
+                ),
+              ),
+              Positioned(
+                top: constraints.maxHeight * 0.79,
+                left: constraints.maxWidth * 0.06,
                 child: _buildOverlayIcon(
                   'assets/investigate.png',
                   40,
-                  "A private office enclosed by glass partitions.",
-                  'audio/case3/bank/3.mp3',
-                  const Duration(seconds: 4),
+                  "A brown rectangular briefcase containing personal documents.",
+                  'audio/case3/cityPolice/4.mp3',
+                  const Duration(seconds: 5),
                 ),
               ),
               if (activeInvestigationText != null)
@@ -430,7 +593,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
             children: [
               Positioned.fill(
                 child: Image.asset(
-                  'assets/Case3/bank_question.png',
+                  'assets/Case3/city_police_question.png',
                   fit: BoxFit.fill,
                 ),
               ),
@@ -445,15 +608,15 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.22,
+                top: constraints.maxHeight * 0.23,
                 left: constraints.maxWidth * 0.08,
                 right: constraints.maxWidth * 0.08,
                 child: const Text(
-                  "Identify the large payment made by Mark Lowe to an offshore entity on the day of the crime. Then, find the two subsequent payments made by that same entity to Ethan Serrano and Jose De Leon. What was the total Blood Money distributed by the Syndicate?",
+                  "Based on your queries, identify the mastermind, killer, and the enforcer.",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Consolas',
-                    fontSize: 12,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.blueGrey,
                   ),
@@ -597,13 +760,16 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
       fontFamily: 'Consolas',
       color: Colors.red,
       fontWeight: FontWeight.bold,
-      fontSize: 13,
+      fontSize: 11,
     );
 
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/Case3/transaction_ledger.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/Case3/incident_report.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 20,
@@ -657,27 +823,27 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
   }
 
   int _flexForHeader(String header) {
-  switch (header) {
-    case 'trans_id':
-      return 3;
-    case 'recipient_name':
-      return 3;
-    case 'amount':
-      return 3;
-    case 'sender_name':
-      return 3;
-    case 'source':
-      return 4;
-    default:
-      return 3;
-  }
+    switch (header) {
+      case 'report_id':
+        return 2;
+      case 'call_time':
+        return 2;
+      case 'location':
+        return 2;
+      case 'caller':
+        return 2;
+      case 'summary':
+        return 6;
+      default:
+        return 3;
+    }
   }
 
   List<TableRow> _buildTableRowsList() {
     const cellStyle = TextStyle(
       fontFamily: 'Consolas',
       color: Colors.black,
-      fontSize: 9,
+      fontSize: 8,
       fontWeight: FontWeight.w500,
     );
 
@@ -712,7 +878,10 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/Case3/bank_query.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/Case3/city_police_query.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 10,

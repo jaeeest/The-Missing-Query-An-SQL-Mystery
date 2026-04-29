@@ -587,7 +587,7 @@ class _SkylineScreenState extends State<SkylineScreen> with CaseScreenHelper {
       fontFamily: 'Consolas',
       color: Colors.red,
       fontWeight: FontWeight.bold,
-      fontSize: 12,
+      fontSize: 14,
     );
 
     return Stack(

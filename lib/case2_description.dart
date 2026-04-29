@@ -468,7 +468,7 @@ class _CaseDescription2State extends State<CaseDescription2>
           children: [
             Positioned.fill(
               child: Image.asset(
-                _isBoardVisible ? 'assets/case_bg1.png' : 'assets/case_bg.png',
+                _isBoardVisible ? 'assets/Case2/case_board2.png' : 'assets/case_bg.png',
                 fit: BoxFit.fill,
               ),
             ),

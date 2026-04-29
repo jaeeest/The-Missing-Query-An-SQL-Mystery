@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'simple_sql_engine.dart';
 import 'case_helper.dart';
 
-class BankScreen extends StatefulWidget {
-  const BankScreen({super.key});
+class CordovaScreen extends StatefulWidget {
+  const CordovaScreen({super.key});
 
   @override
-  State<BankScreen> createState() => _BankScreenState();
+  State<CordovaScreen> createState() => _CordovaScreenState();
 }
 
-class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
+class _CordovaScreenState extends State<CordovaScreen> with CaseScreenHelper {
   bool isQueryVisible = false;
   bool isTableVisible = false;
   bool isQuestionVisible = false;
@@ -27,39 +27,215 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
   final ScrollController _sqlScrollController = ScrollController();
 
   final List<String> _headers = const [
-    'trans_id',
-    'recipient_name',
-    'amount',
-    'sender_name',
-    'source',
+    'cert_id',
+    'owner_name',
+    'cert_type',
+    'issuer_name',
+    'issue_date',
+    'appraisal_value',
   ];
 
-  final List<List<String>> _transactionLedger = [
-    ['TXN-4001', 'Rosie Cordova', '120', 'Floral Shop', 'Local_Pay'],
-    ['TXN-4002', 'James Miller', '4500', 'Tech_Corp', 'Payroll'],
-    ['TXN-4003', 'Mark Lowe', '12000', 'Global_Biz_Inc', 'Wire_Transfer'],
-    ['TXN-4004', 'Elena Cruz', '850', 'Retail_Sales', 'Direct_Deposit'],
-    ['TXN-4005', 'City Utility', '315.2', 'Virginia Lowe', 'Auto_Debit'],
-    ['TXN-4006', 'Marcus Thorne', '2500', 'City_Police', 'Payroll'],
-    ['TXN-4007', 'Skyline Airlines', '1200', 'Mark Lowe', 'Credit_Card'],
-    ['TXN-4008', 'Jose De Leon', '1850', 'City_Waste', 'Payroll'],
-    ['TXN-4009', 'Ethan Serrano', '50000', 'HUANG', 'Offshore_Cayman'],
-    ['TXN-4010', 'Rosie Cordova', '25', 'Ethan Serrano', 'P2P_Transfer'],
-    ['TXN-4011', 'Central Hospital', '75000', 'Aron Huang', 'Private_Fund'],
-    ['TXN-4012', 'Thomas Shelby', '10000', 'Unknown_Source', 'Crypto_Wallet'],
-    ['TXN-4013', 'Mark Lowe', '200', 'Gas_Station', 'Credit_Card'],
-    ['TXN-4014', 'Jose De Leon', '15000', 'HUANG', 'Encrypted_Node'],
-    ['TXN-4015', 'Rosie Cordova', '15000', 'Jewelry_Exch', 'Credit_Refund'],
-    ['TXN-4016', 'Benedict Huang', '500', 'Aron Huang', 'Allowance'],
-    ['TXN-4017', 'Mark Lowe', '5000', 'Legal_Shield_LLC', 'Retainer_Fee'],
-    ['TXN-4018', 'Loyd Shaw', '1200', 'Mark Lowe', 'Monthly_Stipend'],
-    ['TXN-4019', 'Ethan Serrano', '1200', 'Delivery_Hub', 'Gig_Income'],
-    ['TXN-4020', 'HUANG', '150000', 'Mark Lowe', 'Escrow_Payment'],
-    ['TXN-4021', 'Rosie Cordova', '400', 'Landlord_Inc', 'Rent_Payment'],
-    ['TXN-4022', 'Central Hospital', '5000', 'Insurance_Group', 'Claim_Payout'],
-    ['TXN-4023', 'Jose De Leon', '150', 'Local_Diner', 'Debit_Card'],
-    ['TXN-4024', 'Ethan Serrano', '30000', 'Medical_Savings', 'Withdrawal'],
-    ['TXN-4025', 'Aron Huang', '1000000', 'Huang_Corp_Main', 'Dividend'],
+  final List<List<String>> _documents = [
+    [
+      'C-7001',
+      'Rosie Cordova',
+      'Business License',
+      'City of Baldwin',
+      '2024-01-15',
+      'N/A',
+    ],
+    [
+      'C-7002',
+      'Rosie Cordova',
+      'Floristry Master Class',
+      'Green Thumb Academy',
+      '2023-05-20',
+      'N/A',
+    ],
+    [
+      'C-7003',
+      'Rosie Cordova',
+      'Rental Agreement',
+      'Market Dist. Realty',
+      '2025-02-01',
+      'N/A',
+    ],
+    [
+      'C-7004',
+      'Rosie Cordova',
+      'Health Insurance',
+      'Baldwin Care',
+      '2026-01-10',
+      'N/A',
+    ],
+    [
+      'C-7005',
+      'Rosie Cordova',
+      'Jewelry Authenticity',
+      'Luxury Vault Gems',
+      '2026-04-21',
+      '\$15,000.00',
+    ],
+    [
+      'C-7006',
+      'Ethan Serrano',
+      'High School Diploma',
+      'Baldwin North High',
+      '2020-06-15',
+      'N/A',
+    ],
+    [
+      'C-7007',
+      'Ethan Serrano',
+      'Blood Compatibility',
+      'Central Hospital',
+      '2026-04-15',
+      'N/A',
+    ],
+    [
+      'C-7008',
+      'Rosie Cordova',
+      'Vehicle Registration',
+      'DMV',
+      '2025-08-12',
+      'N/A',
+    ],
+    [
+      'C-7009',
+      'Rosie Cordova',
+      'Watch Appraisal',
+      'Gold & Timepiece',
+      '2026-04-21',
+      '\$4,500.00',
+    ],
+    [
+      'C-7010',
+      'Rosie Cordova',
+      'Pet Vaccination',
+      'City Vet Clinic',
+      '2025-11-30',
+      'N/A',
+    ],
+    [
+      'C-7011',
+      'Ethan Serrano',
+      'Delivery Certification',
+      'Courier Pro Inc.',
+      '2024-03-22',
+      'N/A',
+    ],
+    [
+      'C-7012',
+      'Ethan Serrano',
+      'Life Insurance Policy',
+      'SecureFuture Ltd.',
+      '2026-04-18',
+      '\$50,000.00',
+    ],
+    [
+      'C-7013',
+      'Rosie Cordova',
+      'Lease Renewal',
+      'Market Dist. Realty',
+      '2026-02-01',
+      'N/A',
+    ],
+    [
+      'C-7014',
+      'Rosie Cordova',
+      'Best Boutique Award',
+      'City Commerce',
+      '2025-12-10',
+      'N/A',
+    ],
+    [
+      'C-7015',
+      'Rosie Cordova',
+      'Fire Safety Cert',
+      'B.C. Fire Dept',
+      '2025-09-05',
+      'N/A',
+    ],
+    [
+      'C-7016',
+      'Rosie Cordova',
+      'Diamond GIA Cert',
+      'International Gem Institute',
+      '2026-04-21',
+      '\$12,000.00',
+    ],
+    [
+      'C-7017',
+      'Ethan Serrano',
+      'Defensive Driving',
+      'Safety First Org',
+      '2023-11-14',
+      'N/A',
+    ],
+    [
+      'C-7018',
+      'Rosie Cordova',
+      'Savings Bond',
+      'City Bank & Trust',
+      '2022-07-04',
+      '\$1,000.00',
+    ],
+    [
+      'C-7019',
+      'Rosie Cordova',
+      'Voter Registration',
+      'Electoral Board',
+      '2024-10-20',
+      'N/A',
+    ],
+    [
+      'C-7020',
+      'Ethan Serrano',
+      'Medical Discharge',
+      'Central Hospital',
+      '2026-04-22',
+      'N/A',
+    ],
+    [
+      'C-7021',
+      'Rosie Cordova',
+      'Library Card',
+      'Baldwin Library',
+      '2021-05-12',
+      'N/A',
+    ],
+    [
+      'C-7022',
+      'Rosie Cordova',
+      'Gym Membership',
+      'Iron Body Gym',
+      '2026-01-05',
+      'N/A',
+    ],
+    [
+      'C-7023',
+      'Rosie Cordova',
+      'Food Safety Permit',
+      'Health Dept',
+      '2025-06-30',
+      'N/A',
+    ],
+    [
+      'C-7024',
+      'Ethan Serrano',
+      'Motorcycle License',
+      'DMV',
+      '2021-09-18',
+      'N/A',
+    ],
+    [
+      'C-7025',
+      'Rosie Cordova',
+      'Tax Clearance',
+      'City Revenue',
+      '2026-03-15',
+      'N/A',
+    ],
   ];
 
   late final SimpleSqlEngine _sqlEngine;
@@ -73,21 +249,22 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
 
     initCaseHelper();
 
-    _allLedgerMaps = _transactionLedger.map((row) {
+    _allLedgerMaps = _documents.map((row) {
       return {
-        'trans_id': row[0],
-        'recipient_name': row[1],
-        'amount': row[2],
-        'sender_name': row[3],
-        'source': row[4],
+        'cert_id': row[0],
+        'owner_name': row[1],
+        'cert_type': row[2],
+        'issuer_name': row[3],
+        'issue_date': row[4],
+        'appraisal_value': row[5],
       };
     }).toList();
 
     _sqlEngine = SimpleSqlEngine(
-      tableName: 'transaction_ledger',
+      tableName: 'documents',
       headers: _headers,
       rows: _allLedgerMaps,
-      numericColumns: const {'amount'},
+      numericColumns: const {'appraisal_value'},
     );
 
     _filteredLedgerMaps = List.from(_allLedgerMaps);
@@ -124,19 +301,20 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
         .replaceAll(',', '');
   }
 
-  bool _isBankCorrectAnswer(String input) {
-    final normalized = _normalizeAnswer(input);
+  bool _isCordovaCorrectAnswer(String input) {
+  final normalized = _normalizeAnswer(input);
 
-    const acceptedAnswers = {
-      'ETHAN SERRANO JOSE DE LEON 65000',
-      'ETHAN SERRANO, JOSE DE LEON, 65000',
-      'HUANG ETHAN SERRANO JOSE DE LEON 65000',
-      'HUANG, ETHAN SERRANO, JOSE DE LEON, 65000',
-      '65000',
-    };
+  const acceptedAnswers = {
+    '31500',
+    '31500.00',
+    '\$31500',
+    '\$31500.00',
+    '\$31,500.00',
+    '31,500.00',
+  };
 
-    return acceptedAnswers.contains(normalized);
-  }
+  return acceptedAnswers.contains(normalized);
+}
 
   void _submitAnswer() async {
     if (!_hasLives) {
@@ -147,7 +325,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
       return;
     }
 
-    if (_isBankCorrectAnswer(_answerController.text)) {
+    if (_isCordovaCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
       setState(() {
         isQuestionVisible = false;
@@ -289,7 +467,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
             children: [
               Positioned.fill(
                 child: Image.asset(
-                  'assets/Case3/bank_loc.png',
+                  'assets/Case3/cordova_loc.png',
                   fit: BoxFit.fill,
                 ),
               ),
@@ -345,41 +523,41 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.56,
-                left: constraints.maxWidth * 0.33,
+                top: constraints.maxHeight * 0.44,
+                left: constraints.maxWidth * 0.50,
                 child: _buildAsteriskIcon(40),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.42,
-                left: constraints.maxWidth * 0.12,
+                top: constraints.maxHeight * 0.33,
+                left: constraints.maxWidth * 0.51,
                 child: _buildOverlayIcon(
                   'assets/investigate.png',
-                  30,
-                  "Several flat-screen monitors displaying bank and financial data.",
-                  'audio/case3/bank/1.mp3',
-                  const Duration(seconds: 5),
-                ),
-              ),
-              Positioned(
-                top: constraints.maxHeight * 0.46,
-                left: constraints.maxWidth * 0.59,
-                child: _buildOverlayIcon(
-                  'assets/investigate.png',
-                  30,
-                  "A row of dark wood teller stations.",
-                  'audio/case3/bank/2.mp3',
-                  const Duration(seconds: 3),
+                  35,
+                  "A large domed government-style building against the skyline.",
+                  'audio/case3/cordova/1.mp3',
+                  const Duration(seconds: 4),
                 ),
               ),
               Positioned(
                 top: constraints.maxHeight * 0.40,
-                left: constraints.maxWidth * 0.93,
+                left: constraints.maxWidth * 0.30,
+                child: _buildOverlayIcon(
+                  'assets/investigate.png',
+                  45,
+                  "An open wooden door with glass panes leads to another room.",
+                  'audio/case3/cordova/2.mp3',
+                  const Duration(seconds: 4),
+                ),
+              ),
+              Positioned(
+                top: constraints.maxHeight * 0.60,
+                left: constraints.maxWidth * 0.44,
                 child: _buildOverlayIcon(
                   'assets/investigate.png',
                   40,
-                  "A private office enclosed by glass partitions.",
-                  'audio/case3/bank/3.mp3',
-                  const Duration(seconds: 4),
+                  "A bowl filled with various fruits.",
+                  'audio/case3/cordova/3.mp3',
+                  const Duration(seconds: 3),
                 ),
               ),
               if (activeInvestigationText != null)
@@ -430,7 +608,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
             children: [
               Positioned.fill(
                 child: Image.asset(
-                  'assets/Case3/bank_question.png',
+                  'assets/Case3/cordova_question.png',
                   fit: BoxFit.fill,
                 ),
               ),
@@ -445,15 +623,15 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.22,
+                top: constraints.maxHeight * 0.23,
                 left: constraints.maxWidth * 0.08,
                 right: constraints.maxWidth * 0.08,
                 child: const Text(
-                  "Identify the large payment made by Mark Lowe to an offshore entity on the day of the crime. Then, find the two subsequent payments made by that same entity to Ethan Serrano and Jose De Leon. What was the total Blood Money distributed by the Syndicate?",
+                  "Find all jewelry appraisals issued to Rosie Cordova on April 21st. What is the total value of these new assets?",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Consolas',
-                    fontSize: 12,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: Colors.blueGrey,
                   ),
@@ -597,13 +775,13 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
       fontFamily: 'Consolas',
       color: Colors.red,
       fontWeight: FontWeight.bold,
-      fontSize: 13,
+      fontSize: 8,
     );
 
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/Case3/transaction_ledger.png', fit: BoxFit.fill),
+          child: Image.asset('assets/Case3/documents.png', fit: BoxFit.fill),
         ),
         Positioned(
           top: 20,
@@ -657,27 +835,29 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
   }
 
   int _flexForHeader(String header) {
-  switch (header) {
-    case 'trans_id':
-      return 3;
-    case 'recipient_name':
-      return 3;
-    case 'amount':
-      return 3;
-    case 'sender_name':
-      return 3;
-    case 'source':
-      return 4;
-    default:
-      return 3;
-  }
+    switch (header) {
+      case 'cert_id':
+        return 3;
+      case 'owner_name':
+        return 3;
+      case 'cert_type':
+        return 4;
+      case 'issuer_name':
+        return 4;
+      case 'issue_date':
+        return 3;
+      case 'appraisal_value':
+        return 4;
+      default:
+        return 3;
+    }
   }
 
   List<TableRow> _buildTableRowsList() {
     const cellStyle = TextStyle(
       fontFamily: 'Consolas',
       color: Colors.black,
-      fontSize: 9,
+      fontSize: 7,
       fontWeight: FontWeight.w500,
     );
 
@@ -712,7 +892,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/Case3/bank_query.png', fit: BoxFit.fill),
+          child: Image.asset('assets/Case3/cordova_query.png', fit: BoxFit.fill),
         ),
         Positioned(
           top: 10,

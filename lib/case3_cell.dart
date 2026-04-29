@@ -585,7 +585,7 @@ class _CellScreenState extends State<CellScreen> with CaseScreenHelper {
       fontFamily: 'Consolas',
       color: Colors.red,
       fontWeight: FontWeight.bold,
-      fontSize: 9,
+      fontSize: 12,
     );
 
     return Stack(
@@ -652,13 +652,13 @@ class _CellScreenState extends State<CellScreen> with CaseScreenHelper {
       case 'ping_id':
         return 2;
       case 'device_owner':
-        return 4;
+        return 3;
       case 'proximity_zone':
         return 4;
       case 'timestamp':
         return 2;
       case 'signal_strength':
-        return 3;
+        return 4;
       default:
         return 3;
     }

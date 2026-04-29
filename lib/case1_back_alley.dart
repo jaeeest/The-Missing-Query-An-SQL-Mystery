@@ -675,7 +675,7 @@ class _BackAlleyScreenState extends State<BackAlleyScreen>
       fontFamily: 'Consolas',
       color: Colors.red,
       fontWeight: FontWeight.bold,
-      fontSize: 8,
+      fontSize: 10,
     );
 
     return Stack(

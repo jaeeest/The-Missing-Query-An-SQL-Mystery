@@ -6,9 +6,12 @@ import 'case3_bank.dart';
 import 'case3_cell.dart';
 import 'case3_lowe.dart';
 import 'case3_skyline.dart';
-import 'case1_the_loupe.dart';
-import 'case1_police_station.dart';
-import 'case1_municipal.dart';
+import 'case3_cordova.dart';
+import 'case3_hospital.dart';
+import 'case3_huang.dart';
+import 'case3_logistics.dart';
+import 'case3_waste_corp.dart';
+import 'case3_city_police.dart';
 import 'lives_manager.dart';
 import 'case_helper.dart';
 
@@ -439,12 +442,18 @@ class _CaseMap3State extends State<CaseMap3> with CaseScreenHelper {
             Navigator.push(context, fadeRoute(const LoweScreen()));
           } else if (asset.contains('skyline')) {
             Navigator.push(context, fadeRoute(const SkylineScreen()));
-          } else if (asset.contains('the_loupe')) {
-            Navigator.push(context, fadeRoute(const LoupeScreen()));
-          } else if (asset.contains('police_station')) {
-            Navigator.push(context, fadeRoute(const PoliceStationScreen()));
-          } else if (asset.contains('municipal')) {
-            Navigator.push(context, fadeRoute(const MunicipalScreen()));
+          } else if (asset.contains('cordova')) {
+            Navigator.push(context, fadeRoute(const CordovaScreen()));
+          } else if (asset.contains('hospital')) {
+            Navigator.push(context, fadeRoute(const HospitalScreen()));
+          } else if (asset.contains('huang')) {
+            Navigator.push(context, fadeRoute(const HuangScreen()));
+          } else if (asset.contains('logistics')) {
+            Navigator.push(context, fadeRoute(const LogisticsScreen()));
+          } else if (asset.contains('waste_corp')) {
+            Navigator.push(context, fadeRoute(const WasteCorpScreen()));
+          } else if (asset.contains('city_police')) {
+            Navigator.push(context, fadeRoute(const CityPoliceScreen()));
           } else {
             debugPrint("Location tapped: $asset");
           }

@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'simple_sql_engine.dart';
 import 'case_helper.dart';
 
-class BankScreen extends StatefulWidget {
-  const BankScreen({super.key});
+class LogisticsScreen extends StatefulWidget {
+  const LogisticsScreen({super.key});
 
   @override
-  State<BankScreen> createState() => _BankScreenState();
+  State<LogisticsScreen> createState() => _LogisticsScreenState();
 }
 
-class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
+class _LogisticsScreenState extends State<LogisticsScreen> with CaseScreenHelper {
   bool isQueryVisible = false;
   bool isTableVisible = false;
   bool isQuestionVisible = false;
@@ -27,39 +27,69 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
   final ScrollController _sqlScrollController = ScrollController();
 
   final List<String> _headers = const [
-    'trans_id',
-    'recipient_name',
-    'amount',
-    'sender_name',
-    'source',
+    'container_id',
+    'employee',
+    'task',
+    'location',
+    'shift',
   ];
 
-  final List<List<String>> _transactionLedger = [
-    ['TXN-4001', 'Rosie Cordova', '120', 'Floral Shop', 'Local_Pay'],
-    ['TXN-4002', 'James Miller', '4500', 'Tech_Corp', 'Payroll'],
-    ['TXN-4003', 'Mark Lowe', '12000', 'Global_Biz_Inc', 'Wire_Transfer'],
-    ['TXN-4004', 'Elena Cruz', '850', 'Retail_Sales', 'Direct_Deposit'],
-    ['TXN-4005', 'City Utility', '315.2', 'Virginia Lowe', 'Auto_Debit'],
-    ['TXN-4006', 'Marcus Thorne', '2500', 'City_Police', 'Payroll'],
-    ['TXN-4007', 'Skyline Airlines', '1200', 'Mark Lowe', 'Credit_Card'],
-    ['TXN-4008', 'Jose De Leon', '1850', 'City_Waste', 'Payroll'],
-    ['TXN-4009', 'Ethan Serrano', '50000', 'HUANG', 'Offshore_Cayman'],
-    ['TXN-4010', 'Rosie Cordova', '25', 'Ethan Serrano', 'P2P_Transfer'],
-    ['TXN-4011', 'Central Hospital', '75000', 'Aron Huang', 'Private_Fund'],
-    ['TXN-4012', 'Thomas Shelby', '10000', 'Unknown_Source', 'Crypto_Wallet'],
-    ['TXN-4013', 'Mark Lowe', '200', 'Gas_Station', 'Credit_Card'],
-    ['TXN-4014', 'Jose De Leon', '15000', 'HUANG', 'Encrypted_Node'],
-    ['TXN-4015', 'Rosie Cordova', '15000', 'Jewelry_Exch', 'Credit_Refund'],
-    ['TXN-4016', 'Benedict Huang', '500', 'Aron Huang', 'Allowance'],
-    ['TXN-4017', 'Mark Lowe', '5000', 'Legal_Shield_LLC', 'Retainer_Fee'],
-    ['TXN-4018', 'Loyd Shaw', '1200', 'Mark Lowe', 'Monthly_Stipend'],
-    ['TXN-4019', 'Ethan Serrano', '1200', 'Delivery_Hub', 'Gig_Income'],
-    ['TXN-4020', 'HUANG', '150000', 'Mark Lowe', 'Escrow_Payment'],
-    ['TXN-4021', 'Rosie Cordova', '400', 'Landlord_Inc', 'Rent_Payment'],
-    ['TXN-4022', 'Central Hospital', '5000', 'Insurance_Group', 'Claim_Payout'],
-    ['TXN-4023', 'Jose De Leon', '150', 'Local_Diner', 'Debit_Card'],
-    ['TXN-4024', 'Ethan Serrano', '30000', 'Medical_Savings', 'Withdrawal'],
-    ['TXN-4025', 'Aron Huang', '1000000', 'Huang_Corp_Main', 'Dividend'],
+  final List<List<String>> _cargoManifests = [
+    [
+      'BIN_101',
+      'Alex Reed',
+      'Equipment_Sterilization',
+      'Sterilization_Lab',
+      'Day',
+    ],
+    ['BIN_102', 'Eldo Odierno', 'Supply_Restock', 'Pharmacy_Wing', 'Day'],
+    ['BIN_103', 'Alex Reed', 'Linen_Disposal', 'Laundry_Dept', 'Day'],
+    ['BIN_104', 'Alex Reed', 'Biohazard_Sort', 'Loading_Dock_A', 'Day'],
+    ['BIN_201', 'Matteo Centore', 'Security_Escort', 'VIP_Wing', 'Day'],
+    ['BIN_202', 'Alex Reed', 'Surgical_Prep', 'OR_Room_4', 'Day'],
+    ['BIN_203', 'Alex Reed', 'Waste_Removal', 'General_Ward', 'Day'],
+    ['BIN_301', 'Eldo Odierno', 'Document_Shredding', 'Admin_Office', 'Day'],
+    ['BIN_302', 'Aya Gindi', 'Tech_Maintenance', 'IT_Server_Room', 'Day'],
+    ['BIN_401', 'Matteo Centore', 'Heavy_Cargo_In', 'Loading_Dock_B', 'Day'],
+    ['BIN_402', 'Jose De Leon', 'Biohazard', 'Waste_Facility', 'Night'],
+    [
+      'BIN_403',
+      'Matteo Centore',
+      'VIP_Cargo_Escort',
+      'VIP_Wing_Elevator',
+      'Night',
+    ],
+    ['BIN_404', 'Alex Reed', 'Cooling_System_Check', 'Cryo_Storage', 'Night'],
+    ['BIN_405', 'Jose De Leon', 'Site_Sanitization', 'Lowe_Residence', 'Night'],
+    [
+      'BIN_406',
+      'Matteo Centore',
+      'Equipment_Transport',
+      'Physical_Therapy',
+      'Night',
+    ],
+    ['BIN_407', 'Aya Gindi', 'Surveillance_Log', 'Security_Station', 'Night'],
+    ['BIN_408', 'Aya Gindi', 'Sample_Analysis', 'Research_Lab', 'Night'],
+    ['BIN_409', 'Eldo Odierno', 'Courier_Pickup', 'Front_Desk', 'Night'],
+    [
+      'BIN_410',
+      'Jose De Leon',
+      'Unclaimed_Inventory_Move',
+      'Morgue_Transit',
+      'Night',
+    ],
+    ['BIN_411', 'Aya Gindi', 'Daily_Report_Entry', 'Archive_Room', 'Night'],
+    ['BIN_412', 'Eldo Odierno', 'Staff_Briefing', 'Break_Room', 'Night'],
+    [
+      'BIN_413',
+      'Matteo Centore',
+      'Rapid_Delivery_Restock',
+      'Emergency_Room',
+      'Night',
+    ],
+    ['BIN_414', 'Alex Reed', 'Cyber_Security_Audit', 'Data_Center', 'Night'],
+    ['BIN_415', 'Eldo Odierno', 'Perimeter_Check', 'Parking_Garage', 'Night'],
+    ['BIN_416', 'Eldo Odierno', 'Water_Filtration', 'Utility_Plant', 'Night'],
   ];
 
   late final SimpleSqlEngine _sqlEngine;
@@ -73,21 +103,21 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
 
     initCaseHelper();
 
-    _allLedgerMaps = _transactionLedger.map((row) {
+    _allLedgerMaps = _cargoManifests.map((row) {
       return {
-        'trans_id': row[0],
-        'recipient_name': row[1],
-        'amount': row[2],
-        'sender_name': row[3],
-        'source': row[4],
+        'container_id': row[0],
+        'employee': row[1],
+        'task': row[2],
+        'location': row[3],
+        'shift': row[4],
       };
     }).toList();
 
     _sqlEngine = SimpleSqlEngine(
-      tableName: 'transaction_ledger',
+      tableName: 'cargo_manifests',
       headers: _headers,
       rows: _allLedgerMaps,
-      numericColumns: const {'amount'},
+      numericColumns: const {},
     );
 
     _filteredLedgerMaps = List.from(_allLedgerMaps);
@@ -124,15 +154,16 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
         .replaceAll(',', '');
   }
 
-  bool _isBankCorrectAnswer(String input) {
+  bool _isLogisticsCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
 
     const acceptedAnswers = {
-      'ETHAN SERRANO JOSE DE LEON 65000',
-      'ETHAN SERRANO, JOSE DE LEON, 65000',
-      'HUANG ETHAN SERRANO JOSE DE LEON 65000',
-      'HUANG, ETHAN SERRANO, JOSE DE LEON, 65000',
-      '65000',
+      'BIOHAZARD WASTE_FACILITY',
+      'BIOHAZARD WASTE FACILITY',
+      'BIN_402 BIOHAZARD WASTE_FACILITY',
+      'BIN 402 BIOHAZARD WASTE FACILITY',
+      'JOSE DE LEON BIOHAZARD WASTE_FACILITY',
+      'JOSE DE LEON BIOHAZARD WASTE FACILITY',
     };
 
     return acceptedAnswers.contains(normalized);
@@ -147,7 +178,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
       return;
     }
 
-    if (_isBankCorrectAnswer(_answerController.text)) {
+    if (_isLogisticsCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
       setState(() {
         isQuestionVisible = false;
@@ -289,7 +320,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
             children: [
               Positioned.fill(
                 child: Image.asset(
-                  'assets/Case3/bank_loc.png',
+                  'assets/Case3/logistics_loc.png',
                   fit: BoxFit.fill,
                 ),
               ),
@@ -345,40 +376,40 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.56,
-                left: constraints.maxWidth * 0.33,
-                child: _buildAsteriskIcon(40),
+                top: constraints.maxHeight * 0.58,
+                left: constraints.maxWidth * 0.61,
+                child: _buildAsteriskIcon(45),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.42,
-                left: constraints.maxWidth * 0.12,
+                top: constraints.maxHeight * 0.60,
+                left: constraints.maxWidth * 0.91,
                 child: _buildOverlayIcon(
                   'assets/investigate.png',
-                  30,
-                  "Several flat-screen monitors displaying bank and financial data.",
-                  'audio/case3/bank/1.mp3',
-                  const Duration(seconds: 5),
-                ),
-              ),
-              Positioned(
-                top: constraints.maxHeight * 0.46,
-                left: constraints.maxWidth * 0.59,
-                child: _buildOverlayIcon(
-                  'assets/investigate.png',
-                  30,
-                  "A row of dark wood teller stations.",
-                  'audio/case3/bank/2.mp3',
+                  40,
+                  "A grey door with a small square window.",
+                  'audio/case3/logistics/1.mp3',
                   const Duration(seconds: 3),
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.40,
-                left: constraints.maxWidth * 0.93,
+                top: constraints.maxHeight * 0.36,
+                left: constraints.maxWidth * 0.42,
                 child: _buildOverlayIcon(
                   'assets/investigate.png',
                   40,
-                  "A private office enclosed by glass partitions.",
-                  'audio/case3/bank/3.mp3',
+                  "Towering blue metal racks filled with brown cardboard boxes.",
+                  'audio/case3/logistics/2.mp3',
+                  const Duration(seconds: 4),
+                ),
+              ),
+              Positioned(
+                top: constraints.maxHeight * 0.80,
+                left: constraints.maxWidth * 0.10,
+                child: _buildOverlayIcon(
+                  'assets/investigate.png',
+                  40,
+                  "A large white box secured with red straps.",
+                  'audio/case3/logistics/3.mp3',
                   const Duration(seconds: 4),
                 ),
               ),
@@ -430,7 +461,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
             children: [
               Positioned.fill(
                 child: Image.asset(
-                  'assets/Case3/bank_question.png',
+                  'assets/Case3/logistics_question.png',
                   fit: BoxFit.fill,
                 ),
               ),
@@ -445,15 +476,15 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.22,
+                top: constraints.maxHeight * 0.24,
                 left: constraints.maxWidth * 0.08,
                 right: constraints.maxWidth * 0.08,
                 child: const Text(
-                  "Identify the large payment made by Mark Lowe to an offshore entity on the day of the crime. Then, find the two subsequent payments made by that same entity to Ethan Serrano and Jose De Leon. What was the total Blood Money distributed by the Syndicate?",
+                  "Search for container_id BIN_402. What was the specific task and destination for this cargo?",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Consolas',
-                    fontSize: 12,
+                    fontSize: 17,
                     fontWeight: FontWeight.bold,
                     color: Colors.blueGrey,
                   ),
@@ -597,13 +628,16 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
       fontFamily: 'Consolas',
       color: Colors.red,
       fontWeight: FontWeight.bold,
-      fontSize: 13,
+      fontSize: 14,
     );
 
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/Case3/transaction_ledger.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/Case3/cargo_manifests.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 20,
@@ -657,20 +691,20 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
   }
 
   int _flexForHeader(String header) {
-  switch (header) {
-    case 'trans_id':
-      return 3;
-    case 'recipient_name':
-      return 3;
-    case 'amount':
-      return 3;
-    case 'sender_name':
-      return 3;
-    case 'source':
-      return 4;
-    default:
-      return 3;
-  }
+    switch (header) {
+      case 'container_id':
+        return 3;
+      case 'employee':
+        return 3;
+      case 'task':
+        return 4;
+      case 'location':
+        return 3;
+      case 'shift':
+        return 3;
+      default:
+        return 3;
+    }
   }
 
   List<TableRow> _buildTableRowsList() {
@@ -712,7 +746,10 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/Case3/bank_query.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/Case3/logistics_query.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 10,

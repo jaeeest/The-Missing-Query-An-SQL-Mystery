@@ -419,7 +419,7 @@ class _CaseDescription3State extends State<CaseDescription3>
                           ],
                         ),
                       ),
-                      Image.asset('assets/Case3/911.png', height: 50),
+                      Image.asset('assets/Case3/911.png', height: 40),
                     ],
                   ),
                 ),

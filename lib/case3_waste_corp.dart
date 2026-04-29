@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 import 'simple_sql_engine.dart';
 import 'case_helper.dart';
 
-class BankScreen extends StatefulWidget {
-  const BankScreen({super.key});
+class WasteCorpScreen extends StatefulWidget {
+  const WasteCorpScreen({super.key});
 
   @override
-  State<BankScreen> createState() => _BankScreenState();
+  State<WasteCorpScreen> createState() => _WasteCorpScreenState();
 }
 
-class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
+class _WasteCorpScreenState extends State<WasteCorpScreen>
+    with CaseScreenHelper {
   bool isQueryVisible = false;
   bool isTableVisible = false;
   bool isQuestionVisible = false;
@@ -27,39 +28,39 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
   final ScrollController _sqlScrollController = ScrollController();
 
   final List<String> _headers = const [
-    'trans_id',
-    'recipient_name',
-    'amount',
-    'sender_name',
-    'source',
+    'scan_id',
+    'truck_id',
+    'origin_route',
+    'object',
+    'timestamp',
   ];
 
-  final List<List<String>> _transactionLedger = [
-    ['TXN-4001', 'Rosie Cordova', '120', 'Floral Shop', 'Local_Pay'],
-    ['TXN-4002', 'James Miller', '4500', 'Tech_Corp', 'Payroll'],
-    ['TXN-4003', 'Mark Lowe', '12000', 'Global_Biz_Inc', 'Wire_Transfer'],
-    ['TXN-4004', 'Elena Cruz', '850', 'Retail_Sales', 'Direct_Deposit'],
-    ['TXN-4005', 'City Utility', '315.2', 'Virginia Lowe', 'Auto_Debit'],
-    ['TXN-4006', 'Marcus Thorne', '2500', 'City_Police', 'Payroll'],
-    ['TXN-4007', 'Skyline Airlines', '1200', 'Mark Lowe', 'Credit_Card'],
-    ['TXN-4008', 'Jose De Leon', '1850', 'City_Waste', 'Payroll'],
-    ['TXN-4009', 'Ethan Serrano', '50000', 'HUANG', 'Offshore_Cayman'],
-    ['TXN-4010', 'Rosie Cordova', '25', 'Ethan Serrano', 'P2P_Transfer'],
-    ['TXN-4011', 'Central Hospital', '75000', 'Aron Huang', 'Private_Fund'],
-    ['TXN-4012', 'Thomas Shelby', '10000', 'Unknown_Source', 'Crypto_Wallet'],
-    ['TXN-4013', 'Mark Lowe', '200', 'Gas_Station', 'Credit_Card'],
-    ['TXN-4014', 'Jose De Leon', '15000', 'HUANG', 'Encrypted_Node'],
-    ['TXN-4015', 'Rosie Cordova', '15000', 'Jewelry_Exch', 'Credit_Refund'],
-    ['TXN-4016', 'Benedict Huang', '500', 'Aron Huang', 'Allowance'],
-    ['TXN-4017', 'Mark Lowe', '5000', 'Legal_Shield_LLC', 'Retainer_Fee'],
-    ['TXN-4018', 'Loyd Shaw', '1200', 'Mark Lowe', 'Monthly_Stipend'],
-    ['TXN-4019', 'Ethan Serrano', '1200', 'Delivery_Hub', 'Gig_Income'],
-    ['TXN-4020', 'HUANG', '150000', 'Mark Lowe', 'Escrow_Payment'],
-    ['TXN-4021', 'Rosie Cordova', '400', 'Landlord_Inc', 'Rent_Payment'],
-    ['TXN-4022', 'Central Hospital', '5000', 'Insurance_Group', 'Claim_Payout'],
-    ['TXN-4023', 'Jose De Leon', '150', 'Local_Diner', 'Debit_Card'],
-    ['TXN-4024', 'Ethan Serrano', '30000', 'Medical_Savings', 'Withdrawal'],
-    ['TXN-4025', 'Aron Huang', '1000000', 'Huang_Corp_Main', 'Dividend'],
+  final List<List<String>> _conveyorScanLogs = [
+    ['S-9001', 'T-12', 'North Ward', 'Plastic_Mixed', '14:00'],
+    ['S-9002', 'T-12', 'North Ward', 'Paper_Cardboard', '14:02'],
+    ['S-9003', 'T-44', 'West Ward', 'Glass_Bottles', '14:05'],
+    ['S-9004', 'T-44', 'West Ward', 'Metal_Scrap', '14:08'],
+    ['S-9005', 'T-05', 'East Ward', 'Organic_Food_Waste', '14:10'],
+    ['S-9006', 'T-05', 'East Ward', 'Textile_Fabric', '14:12'],
+    ['S-9007', 'T-92', 'South Ward', 'Plastic_Industrial', '14:14'],
+    ['S-9008', 'T-92', 'South Ward', 'Paper_Mixed', '14:15'],
+    ['S-9009', 'T-92', 'South Ward', 'HIGH_DENSITY_ORGANIC', '14:17'],
+    ['S-9010', 'T-92', 'South Ward', 'Glass_Clear', '14:19'],
+    ['S-9011', 'T-05', 'East Ward', 'Electronic_Waste', '14:22'],
+    ['S-9012', 'T-88', 'North Ward', 'Metal_Aluminum', '14:25'],
+    ['S-9013', 'T-88', 'North Ward', 'Organic_Green_Waste', '14:28'],
+    ['S-9014', 'T-10', 'South Ward', 'Paper_Cardboard', '14:30'],
+    ['S-9015', 'T-10', 'South Ward', 'Plastic_PET', '14:32'],
+    ['S-9016', 'T-92', 'South Ward', 'UNIDENTIFIED_LEATHER', '14:35'],
+    ['S-9017', 'T-33', 'Industrial', 'Construction_Debris', '14:38'],
+    ['S-9018', 'T-33', 'Industrial', 'Metal_Steel', '14:41'],
+    ['S-9019', 'T-12', 'North Ward', 'Plastic_HDPE', '14:45'],
+    ['S-9020', 'T-44', 'West Ward', 'Glass_Colored', '14:48'],
+    ['S-9021', 'T-92', 'South Ward', 'Organic_Food_Waste', '14:50'],
+    ['S-9022', 'T-05', 'East Ward', 'Textile_Waste', '14:53'],
+    ['S-9023', 'T-88', 'North Ward', 'Paper_Newsprint', '14:55'],
+    ['S-9024', 'T-10', 'South Ward', 'Plastic_Mixed', '14:58'],
+    ['S-9025', 'T-33', 'Industrial', 'Chemical_Container', '15:00'],
   ];
 
   late final SimpleSqlEngine _sqlEngine;
@@ -73,21 +74,21 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
 
     initCaseHelper();
 
-    _allLedgerMaps = _transactionLedger.map((row) {
+    _allLedgerMaps = _conveyorScanLogs.map((row) {
       return {
-        'trans_id': row[0],
-        'recipient_name': row[1],
-        'amount': row[2],
-        'sender_name': row[3],
-        'source': row[4],
+        'scan_id': row[0],
+        'truck_id': row[1],
+        'origin_route': row[2],
+        'object': row[3],
+        'timestamp': row[4],
       };
     }).toList();
 
     _sqlEngine = SimpleSqlEngine(
-      tableName: 'transaction_ledger',
+      tableName: 'conveyor_scan_logs',
       headers: _headers,
       rows: _allLedgerMaps,
-      numericColumns: const {'amount'},
+      numericColumns: const {},
     );
 
     _filteredLedgerMaps = List.from(_allLedgerMaps);
@@ -124,15 +125,17 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
         .replaceAll(',', '');
   }
 
-  bool _isBankCorrectAnswer(String input) {
+  bool _isWasteCorpCorrectAnswer(String input) {
     final normalized = _normalizeAnswer(input);
 
     const acceptedAnswers = {
-      'ETHAN SERRANO JOSE DE LEON 65000',
-      'ETHAN SERRANO, JOSE DE LEON, 65000',
-      'HUANG ETHAN SERRANO JOSE DE LEON 65000',
-      'HUANG, ETHAN SERRANO, JOSE DE LEON, 65000',
-      '65000',
+      'T-92 SOUTH WARD',
+      'T92 SOUTH WARD',
+      'T-92, SOUTH WARD',
+      'TRUCK T-92 SOUTH WARD',
+      'TRUCK T92 SOUTH WARD',
+      'T-92 SOUTH WARD HIGH_DENSITY_ORGANIC',
+      'T92 SOUTH WARD HIGH DENSITY ORGANIC',
     };
 
     return acceptedAnswers.contains(normalized);
@@ -147,7 +150,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
       return;
     }
 
-    if (_isBankCorrectAnswer(_answerController.text)) {
+    if (_isWasteCorpCorrectAnswer(_answerController.text)) {
       await playCorrectSound();
       setState(() {
         isQuestionVisible = false;
@@ -289,7 +292,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
             children: [
               Positioned.fill(
                 child: Image.asset(
-                  'assets/Case3/bank_loc.png',
+                  'assets/Case3/waste_corp_loc.png',
                   fit: BoxFit.fill,
                 ),
               ),
@@ -345,40 +348,40 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.56,
-                left: constraints.maxWidth * 0.33,
-                child: _buildAsteriskIcon(40),
+                top: constraints.maxHeight * 0.32,
+                left: constraints.maxWidth * 0.32,
+                child: _buildAsteriskIcon(35),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.42,
-                left: constraints.maxWidth * 0.12,
-                child: _buildOverlayIcon(
-                  'assets/investigate.png',
-                  30,
-                  "Several flat-screen monitors displaying bank and financial data.",
-                  'audio/case3/bank/1.mp3',
-                  const Duration(seconds: 5),
-                ),
-              ),
-              Positioned(
-                top: constraints.maxHeight * 0.46,
-                left: constraints.maxWidth * 0.59,
-                child: _buildOverlayIcon(
-                  'assets/investigate.png',
-                  30,
-                  "A row of dark wood teller stations.",
-                  'audio/case3/bank/2.mp3',
-                  const Duration(seconds: 3),
-                ),
-              ),
-              Positioned(
-                top: constraints.maxHeight * 0.40,
-                left: constraints.maxWidth * 0.93,
+                top: constraints.maxHeight * 0.70,
+                left: constraints.maxWidth * 0.23,
                 child: _buildOverlayIcon(
                   'assets/investigate.png',
                   40,
-                  "A private office enclosed by glass partitions.",
-                  'audio/case3/bank/3.mp3',
+                  "A large grey sorting machine labeled “BALDWIN CITY WASTE MANAGEMENT CORP. - SORTING ZONE”",
+                  'audio/case3/wasteCorp/1.mp3',
+                  const Duration(seconds: 6),
+                ),
+              ),
+              Positioned(
+                top: constraints.maxHeight * 0.53,
+                left: constraints.maxWidth * 0.48,
+                child: _buildOverlayIcon(
+                  'assets/investigate.png',
+                  50,
+                  "A long, blue industrial conveyor belt filled with various recyclable waste materials.",
+                  'audio/case3/wasteCorp/2.mp3',
+                  const Duration(seconds: 6),
+                ),
+              ),
+              Positioned(
+                top: constraints.maxHeight * 0.56,
+                left: constraints.maxWidth * 0.87,
+                child: _buildOverlayIcon(
+                  'assets/investigate.png',
+                  40,
+                  "A computer screen showing a diagram of the waste material.",
+                  'audio/case3/wasteCorp/3.mp3',
                   const Duration(seconds: 4),
                 ),
               ),
@@ -430,7 +433,7 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
             children: [
               Positioned.fill(
                 child: Image.asset(
-                  'assets/Case3/bank_question.png',
+                  'assets/Case3/waste_corp_question.png',
                   fit: BoxFit.fill,
                 ),
               ),
@@ -445,15 +448,15 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
                 ),
               ),
               Positioned(
-                top: constraints.maxHeight * 0.22,
+                top: constraints.maxHeight * 0.23,
                 left: constraints.maxWidth * 0.08,
                 right: constraints.maxWidth * 0.08,
                 child: const Text(
-                  "Identify the large payment made by Mark Lowe to an offshore entity on the day of the crime. Then, find the two subsequent payments made by that same entity to Ethan Serrano and Jose De Leon. What was the total Blood Money distributed by the Syndicate?",
+                  "Which truck_id was responsible for the HIGH_DENSITY_ORGANIC alert? \nList the route that truck took earlier that day.",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Consolas',
-                    fontSize: 12,
+                    fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: Colors.blueGrey,
                   ),
@@ -597,13 +600,16 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
       fontFamily: 'Consolas',
       color: Colors.red,
       fontWeight: FontWeight.bold,
-      fontSize: 13,
+      fontSize: 15,
     );
 
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/Case3/transaction_ledger.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/Case3/conveyor_scan.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 20,
@@ -657,20 +663,20 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
   }
 
   int _flexForHeader(String header) {
-  switch (header) {
-    case 'trans_id':
-      return 3;
-    case 'recipient_name':
-      return 3;
-    case 'amount':
-      return 3;
-    case 'sender_name':
-      return 3;
-    case 'source':
-      return 4;
-    default:
-      return 3;
-  }
+    switch (header) {
+      case 'scan_id':
+        return 2;
+      case 'truck_id':
+        return 3;
+      case 'origin_route':
+        return 4;
+      case 'object':
+        return 3;
+      case 'timestamp':
+        return 3;
+      default:
+        return 3;
+    }
   }
 
   List<TableRow> _buildTableRowsList() {
@@ -712,7 +718,10 @@ class _BankScreenState extends State<BankScreen> with CaseScreenHelper {
     return Stack(
       children: [
         Positioned.fill(
-          child: Image.asset('assets/Case3/bank_query.png', fit: BoxFit.fill),
+          child: Image.asset(
+            'assets/Case3/waste_corp_query.png',
+            fit: BoxFit.fill,
+          ),
         ),
         Positioned(
           top: 10,

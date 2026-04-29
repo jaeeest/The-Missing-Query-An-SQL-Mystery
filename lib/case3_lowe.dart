@@ -587,7 +587,7 @@ class _LoweScreenState extends State<LoweScreen> with CaseScreenHelper {
       fontFamily: 'Consolas',
       color: Colors.red,
       fontWeight: FontWeight.bold,
-      fontSize: 9,
+      fontSize: 14,
     );
 
     return Stack(
@@ -649,7 +649,7 @@ class _LoweScreenState extends State<LoweScreen> with CaseScreenHelper {
   int _flexForHeader(String header) {
     switch (header) {
       case 'log_id':
-        return 2;
+        return 3;
       case 'user_code':
         return 3;
       case 'action':
@@ -657,7 +657,7 @@ class _LoweScreenState extends State<LoweScreen> with CaseScreenHelper {
       case 'entry_time':
         return 3;
       case 'exit_time':
-        return 2;
+        return 4;
       default:
         return 3;
     }
