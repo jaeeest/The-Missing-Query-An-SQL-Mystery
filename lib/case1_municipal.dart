@@ -285,7 +285,7 @@ class _MunicipalScreenState extends State<MunicipalScreen>
       fontFamily: 'Consolas',
       color: Colors.red,
       fontWeight: FontWeight.bold,
-      fontSize: 11,
+      fontSize: 13,
     );
 
     return Stack(

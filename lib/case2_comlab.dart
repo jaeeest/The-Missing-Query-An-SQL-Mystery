@@ -574,7 +574,7 @@ class _ComlabScreenState extends State<ComlabScreen> with CaseScreenHelper {
       fontFamily: 'Consolas',
       color: Colors.red,
       fontWeight: FontWeight.bold,
-      fontSize: 11,
+      fontSize: 14,
     );
 
     return Stack(

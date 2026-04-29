@@ -774,7 +774,7 @@ class _IctoScreenState extends State<IctoScreen> with CaseScreenHelper {
       fontFamily: 'Consolas',
       color: Colors.red,
       fontWeight: FontWeight.bold,
-      fontSize: 9,
+      fontSize: 11,
     );
 
     return Stack(
