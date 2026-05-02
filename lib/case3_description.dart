@@ -300,7 +300,7 @@ class _CaseDescription3State extends State<CaseDescription3>
       return;
     }
 
-    if (_profilePageNumber < 3) {
+    if (_profilePageNumber < 5) {
       setState(() => _profilePageNumber++);
       return;
     }
@@ -419,7 +419,7 @@ class _CaseDescription3State extends State<CaseDescription3>
                           ],
                         ),
                       ),
-                      Image.asset('assets/Case3/911.png', height: 40),
+                      Image.asset('assets/Case3/911.png', height: 55),
                     ],
                   ),
                 ),
